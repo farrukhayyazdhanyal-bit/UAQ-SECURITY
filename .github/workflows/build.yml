@@ -29,7 +29,7 @@ jobs:
 
       - name: Generate Android Manifest and Configs
         run: |
-          # Create AndroidManifest.xml with storage, flashlight, and camera permissions
+          # Create AndroidManifest.xml with the correct core FileProvider path
           cat << 'EOF' > app/src/main/AndroidManifest.xml
           <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.uaq.securityapp">
               <uses-permission android:name="android.permission.INTERNET" />
@@ -49,7 +49,7 @@ jobs:
                       </intent-filter>
                   </activity>
                   <provider
-                      android:name="android.core.content.FileProvider"
+                      android:name="androidx.core.content.FileProvider"
                       android:authorities="com.uaq.securityapp.fileprovider"
                       android:exported="false"
                       android:grantUriPermissions="true">
@@ -70,7 +70,7 @@ jobs:
           </paths>
           EOF
 
-          # Create MainActivity.java with standard native camera, flash, and storage pipelines
+          # Create MainActivity.java with native camera, flash, and storage pipelines
           cat << 'EOF' > app/src/main/java/com/uaq/securityapp/MainActivity.java
           package com.uaq.securityapp;
           
@@ -93,6 +93,7 @@ jobs:
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
           import android.widget.Toast;
+          import androidx.core.content.FileProvider;
           import java.io.File;
           import java.io.IOException;
           import java.text.SimpleDateFormat;
@@ -139,7 +140,8 @@ jobs:
                               }
 
                               if (photoFile != null) {
-                                  takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                                  Uri photoURI = FileProvider.getUriForFile(MainActivity.this, "com.uaq.securityapp.fileprovider", photoFile);
+                                  takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                               } else {
                                   takePictureIntent = null;
                               }
@@ -211,7 +213,6 @@ jobs:
                   uploadMessage = null;
               }
 
-              // BACK NAVIGATION INTERCEPT (Fixes Print and Screen freezing loop)
               @Override
               public void onBackPressed() {
                   if (webView != null && webView.canGoBack()) {
@@ -226,7 +227,7 @@ jobs:
           # Create Root settings.gradle
           echo "include ':app'" > settings.gradle
 
-          # Create Root build.gradle (FIXED: Clean multi-line blocks with no text break characters)
+          # Create Root build.gradle
           cat << 'EOF' > build.gradle
           buildscript {
               repositories {
@@ -245,7 +246,7 @@ jobs:
           }
           EOF
 
-          # Create App build.gradle
+          # Create App build.gradle with correct baseline appcompat reference
           cat << 'EOF' > app/build.gradle
           plugins {
               id 'com.android.application'
@@ -257,9 +258,12 @@ jobs:
                   applicationId "com.uaq.securityapp"
                   minSdk 24
                   targetSdk 34
-                  versionCode 6
-                  versionName "1.5"
+                  versionCode 7
+                  versionName "1.6"
               }
+          }
+          dependencies {
+              implementation 'androidx.appcompat:appcompat:1.6.1'
           }
           EOF
 
