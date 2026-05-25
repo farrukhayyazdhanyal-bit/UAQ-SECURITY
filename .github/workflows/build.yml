@@ -24,12 +24,12 @@ jobs:
           mkdir -p app/src/main/res/layout
           mkdir -p app/src/main/res/values
           
-          # Move your HTML file into the App assets
+          # Copy your local tracking HTML directly into the App
           cp index.html app/src/main/assets/index.html
 
       - name: Generate Android Manifest and Configs
         run: |
-          # Create AndroidManifest.xml with all hardware and storage permissions
+          # Create AndroidManifest.xml with Storage, Camera, and Flashlight rights
           cat << 'EOF' > app/src/main/AndroidManifest.xml
           <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.uaq.securityapp">
               <uses-permission android:name="android.permission.INTERNET" />
@@ -49,7 +49,7 @@ jobs:
                       </intent-filter>
                   </activity>
                   <provider
-                      android:name="androidx.core.content.FileProvider"
+                      android:name="android.core.content.FileProvider"
                       android:authorities="com.uaq.securityapp.fileprovider"
                       android:exported="false"
                       android:grantUriPermissions="true">
@@ -61,7 +61,7 @@ jobs:
           </manifest>
           EOF
 
-          # Create file provider paths xml for camera file sharing
+          # Create system file paths for cleanly passing images taken on camera
           mkdir -p app/src/main/res/xml
           cat << 'EOF' > app/src/main/res/xml/file_paths.xml
           <?xml version="1.0" encoding="utf-8"?>
@@ -70,7 +70,7 @@ jobs:
           </paths>
           EOF
 
-          # Create MainActivity.java with Camera, Download, Flashlight & Back Navigation support
+          # Create MainActivity.java using standard native tools
           cat << 'EOF' > app/src/main/java/com/uaq/securityapp/MainActivity.java
           package com.uaq.securityapp;
           
@@ -93,214 +93,7 @@ jobs:
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
           import android.widget.Toast;
-          import androidx.core.content.FileProvider;
           import java.io.File;
           import java.io.IOException;
-          import java.text.SimpleDateFormat;
-          import java.util.Date;
-
-          public class MainActivity extends Activity {
-              private WebView webView;
-              private ValueCallback<Uri[]> uploadMessage;
-              private String cameraPhotoPath;
-              private final static int FILECHOOSER_RESULTCODE = 1;
-              private boolean isFlashOn = false;
-
-              @Override
-              protected void onCreate(Bundle savedInstanceState) {
-                  super.onCreate(savedInstanceState);
-                  webView = new WebView(this);
-                  WebSettings settings = webView.getSettings();
-                  
-                  settings.setJavaScriptEnabled(true);
-                  settings.setDomStorageEnabled(true);
-                  settings.setDatabaseEnabled(true);
-                  settings.setAllowFileAccess(true);
-                  settings.setAllowContentAccess(true);
-                  settings.setMediaPlaybackRequiresUserGesture(false);
-                  
-                  webView.setWebViewClient(new WebViewClient());
-                  
-                  // CAMERA & FILE UPLOAD HOOKS
-                  webView.setWebChromeClient(new WebChromeClient() {
-                      @Override
-                      public boolean onShowFileChooser(WebView mWebView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
-                          if (uploadMessage != null) {
-                              uploadMessage.onReceiveValue(null);
-                          }
-                          uploadMessage = filePathCallback;
-
-                          Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                          if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                              File photoFile = null;
-                              try {
-                                  String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-                                  String imageFileName = "JPEG_" + timeStamp + "_";
-                                  File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-                                  photoFile = File.createTempFile(imageFileName, ".jpg", storageDir);
-                                  cameraPhotoPath = "file:" + photoFile.getAbsolutePath();
-                              } catch (IOException ex) {
-                                  Toast.makeText(MainActivity.this, "Image file creation failed", Toast.LENGTH_SHORT).show();
-                              }
-
-                              if (photoFile != null) {
-                                  Uri photoURI = FileProvider.getUriForFile(MainActivity.this, "com.uaq.securityapp.fileprovider", photoFile);
-                                  takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                              } else {
-                                  takePictureIntent = null;
-                              }
-                          }
-
-                          Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                          contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
-                          contentSelectionIntent.setType("image/*");
-
-                          Intent[] intentArray;
-                          if (takePictureIntent != null) {
-                              intentArray = new Intent[]{takePictureIntent};
-                          } else {
-                              intentArray = new Intent[0];
-                          }
-
-                          Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
-                          chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
-                          chooserIntent.putExtra(Intent.EXTRA_TITLE, "Select Source");
-                          chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
-
-                          startActivityForResult(chooserIntent, FILECHOOSER_RESULTCODE);
-                          return true;
-                      }
-                  });
-                  
-                  // DOWNLOAD LISTENER FOR EXCEL EXPORTS
-                  webView.setDownloadListener(new DownloadListener() {
-                      @Override
-                      public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
-                          try {
-                              DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-                              request.setMimeType(mimetype);
-                              String cookies = CookieManager.getInstance().getCookie(url);
-                              request.addRequestHeader("cookie", cookies);
-                              request.addRequestHeader("User-Agent", userAgent);
-                              request.setDescription("Downloading Excel...");
-                              request.setTitle("Parking_Export.xls");
-                              request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                              request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "Parking_Export.xls");
-                              DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                              dm.enqueue(request);
-                              Toast.makeText(getApplicationContext(), "File Downloading...", Toast.LENGTH_LONG).show();
-                          } catch (Exception e) {
-                              Toast.makeText(getApplicationContext(), "Export generated", Toast.LENGTH_SHORT).show();
-                          }
-                      }
-                  });
-
-                  // Request Runtime Permissions for Camera
-                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                      if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                          requestPermissions(new String[]{android.Manifest.permission.CAMERA}, 100);
-                      }
-                  }
-
-                  webView.loadUrl("file:///android_asset/index.html");
-                  setContentView(webView);
-              }
-
-              // Flashlight Control Method
-              public void toggleFlashlight() {
-                  try {
-                      CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-                      String cameraId = cameraManager.getCameraIdList()[0];
-                      isFlashOn = !isFlashOn;
-                      cameraManager.setTorchMode(cameraId, isFlashOn);
-                  } catch (Exception e) {
-                      runOnUiThread(() -> Toast.makeText(MainActivity.this, "Flashlight error", Toast.LENGTH_SHORT).show());
-                  }
-              }
-
-              @Override
-              protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-                  if (requestCode != FILECHOOSER_RESULTCODE || uploadMessage == null) {
-                      super.onActivityResult(requestCode, resultCode, data);
-                      return;
-                  }
-                  Uri[] results = null;
-                  if (resultCode == Activity.RESULT_OK) {
-                      if (data == null || data.getData() == null) {
-                          if (cameraPhotoPath != null) {
-                              results = new Uri[]{Uri.parse(cameraPhotoPath)};
-                          }
-                      } else {
-                          String dataString = data.getDataString();
-                          if (dataString != null) {
-                              results = new Uri[]{Uri.parse(dataString)};
-                          }
-                      }
-                  }
-                  uploadMessage.onReceiveValue(results);
-                  uploadMessage = null;
-              }
-
-              @Override
-              public void onBackPressed() {
-                  if (webView != null && webView.canGoBack()) {
-                      webView.goBack();
-                  } else {
-                      super.onBackPressed();
-                  }
-              }
-          }
-          EOF
-
-          # Create Root settings.gradle
-          echo "include ':app'" > settings.gradle
-
-          # Create Root build.gradle (REWRITTEN CLEAN LINE BY LINE)
-          cat << 'EOF' > build.gradle
-          buildscript {
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-              dependencies {
-                  classpath 'com.android.tools.build:gradle:8.2.0'
-              }
-          }
-          allprojects {
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-          }
-          EOF
-
-          # Create App build.gradle with androidx dependencies
-          cat << 'EOF' > app/build.gradle
-          plugins {
-              id 'com.android.application'
-          }
-          android {
-              namespace 'com.uaq.securityapp'
-              compileSdk 34
-              defaultConfig {
-                  applicationId "com.uaq.securityapp"
-                  minSdk 24
-                  targetSdk 34
-                  versionCode 4
-                  versionName "1.3"
-              }
-          }
-          dependencies {
-              implementation 'androidx.appcompat:appcompat:1.6.1'
-          }
-          EOF
-
-      - name: Build Android APK
-        run: gradle assembleDebug
-
-      - name: Upload Finished APK File
-        uses: actions/upload-artifact@v4
-        with:
-          name: UAQ-Security-App
-          path: app/build/outputs/apk/debug/app-debug.apk
+          import
           
