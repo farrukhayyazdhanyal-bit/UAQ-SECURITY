@@ -74,14 +74,22 @@ jobs:
           # Create Root settings.gradle
           echo "include ':app'" > settings.gradle
 
-          # Create Root build.gradle
+          # Create Root build.gradle with clean line separations
           cat << 'EOF' > build.gradle
           buildscript {
-              repositories { google() \n mavenCentral() }
-              dependencies { classpath 'com.android.tools.build:gradle:8.2.0' }
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+              dependencies {
+                  classpath 'com.android.tools.build:gradle:8.2.0'
+              }
           }
           allprojects {
-              repositories { google() \n mavenCentral() }
+              repositories {
+                  google()
+                  mavenCentral()
+              }
           }
           EOF
 
