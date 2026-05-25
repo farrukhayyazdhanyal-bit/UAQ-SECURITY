@@ -104,7 +104,6 @@ jobs:
               private ValueCallback<Uri[]> uploadMessage;
               private String cameraPhotoPath;
               private final static int FILECHOOSER_RESULTCODE = 1;
-              private boolean isFlashOn = false;
 
               @Override
               protected void onCreate(Bundle savedInstanceState) {
@@ -227,6 +226,9 @@ jobs:
           # Create Root settings.gradle
           echo "include ':app'" > settings.gradle
 
+          # Create gradle.properties to force global AndroidX resolution (FIXES BUILD LOOPS)
+          echo "android.useAndroidX=true" > gradle.properties
+
           # Create Root build.gradle
           cat << 'EOF' > build.gradle
           buildscript {
@@ -246,7 +248,7 @@ jobs:
           }
           EOF
 
-          # Create App build.gradle with correct baseline appcompat reference
+          # Create App build.gradle
           cat << 'EOF' > app/build.gradle
           plugins {
               id 'com.android.application'
@@ -258,8 +260,8 @@ jobs:
                   applicationId "com.uaq.securityapp"
                   minSdk 24
                   targetSdk 34
-                  versionCode 7
-                  versionName "1.6"
+                  versionCode 8
+                  versionName "1.7"
               }
           }
           dependencies {
@@ -275,4 +277,5 @@ jobs:
         with:
           name: UAQ-Security-App
           path: app/build/outputs/apk/debug/app-debug.apk
+          
           
