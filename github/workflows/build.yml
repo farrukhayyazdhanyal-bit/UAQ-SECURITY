@@ -5,28 +5,41 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 18
 
-      - name: Create Web Directory
+      - name: Install Capacitor CLI
+        run: npm install @capacitor/cli @capacitor/core @capacitor/android
+
+      - name: Initialize Capacitor Project
         run: |
-          mkdir -p build
-          cp index.html build/
+          mkdir -p www
+          cp index.html www/
+          npx cap init "UAQ Security" "com.uaq.securityapp" --web-dir=www
 
-      - name: Convert to Android APK
-        uses: darkshredder/website-to-apk-action@v2.2
+      - name: Add Android Platform
+        run: npx cap add android
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
         with:
-          build-folder-path: "build"
-          app-name: "UAQ Security"
-          output-folder-path: "output"
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Build Android APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
       - name: Upload APK File Artifact
         uses: actions/upload-artifact@v4
         with:
           name: UAQ-Security-App
-          path: output/
+          path: android/app/build/outputs/apk/debug/app-debug.apk
           
