@@ -8,37 +8,108 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: Install Capacitor CLI
-        run: npm install @capacitor/cli @capacitor/core @capacitor/android
-
-      - name: Initialize Capacitor Project
-        run: |
-          mkdir -p www
-          cp index.html www/
-          npx cap init "UAQ Security" "com.uaq.securityapp" --web-dir=www
-
-      - name: Add Android Platform
-        run: npx cap add android
-
-      - name: Setup Java JDK
+      - name: Set up Java JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Build Android APK
+      - name: Create Native Android Project Structure
         run: |
-          cd android
+          mkdir -p app/src/main/assets
+          mkdir -p app/src/main/java/com/uaq/securityapp
+          mkdir -p app/src/main/res/layout
+          mkdir -p app/src/main/res/values
+          
+          # Move your HTML file into the App assets
+          cp index.html app/src/main/assets/index.html
+
+      - name: Generate Android Manifest and Configs
+        run: |
+          # Create AndroidManifest.xml
+          cat << 'EOF' > app/src/main/AndroidManifest.xml
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.uaq.securityapp">
+              <uses-permission android:name="android.permission.INTERNET" />
+              <application android:label="UAQ Security" android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+                  <activity android:name=".MainActivity" android:exported="true">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOF
+
+          # Create MainActivity.java with Offline Local Storage Settings
+          cat << 'EOF' > app/src/main/java/com/uaq/securityapp/MainActivity.java
+          package com.uaq.securityapp;
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import android.webkit.WebViewClient;
+
+          public class MainActivity extends Activity {
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  WebView webView = new WebView(this);
+                  WebSettings settings = webView.getSettings();
+                  settings.setJavaScriptEnabled(true);
+                  settings.setDomStorageEnabled(true);
+                  settings.setDatabaseEnabled(true);
+                  settings.setAllowFileAccess(true);
+                  settings.setAllowContentAccess(true);
+                  webView.setWebViewClient(new WebViewClient());
+                  webView.loadUrl("file:///android_asset/index.html");
+                  setContentView(webView);
+              }
+          }
+          EOF
+
+          # Create Root settings.gradle
+          echo "include ':app'" > settings.gradle
+
+          # Create Root build.gradle
+          cat << 'EOF' > build.gradle
+          buildscript {
+              repositories { google() \n mavenCentral() }
+              dependencies { classpath 'com.android.tools.build:gradle:8.1.1' }
+          }
+          plugins { id 'com.android.application' version '8.1.1' apply false }
+          EOF
+
+          # Create App build.gradle
+          cat << 'EOF' > app/build.gradle
+          plugins { id 'com.android.application' }
+          android {
+              namespace 'com.uaq.securityapp'
+              compileSdk 34
+              defaultConfig {
+                  applicationId "com.uaq.securityapp"
+                  minSdk 24
+                  targetSdk 34
+                  versionCode 1
+                  versionName "1.0"
+              }
+              buildTypes {
+                  release {
+                      minifyEnabled false
+                  }
+              }
+          }
+          repositories { google() \n mavenCentral() }
+          EOF
+
+      - name: Compile Native Android APK
+        run: |
+          gradle wrapper --gradle-version 8.0
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      - name: Upload Single APK File Directly
+      - name: Upload APK File
         uses: actions/upload-artifact@v4
         with:
           name: UAQ-Security-App
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
