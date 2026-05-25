@@ -277,5 +277,3 @@ jobs:
         with:
           name: UAQ-Security-App
           path: app/build/outputs/apk/debug/app-debug.apk
-          
-          
