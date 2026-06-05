@@ -11,14 +11,19 @@
 <style>
 
 :root{
-  --bg:#0d0f14;--bg2:#13161e;--bg3:#1a1f2b;--bg4:#222838;
-  --border:#2a3347;--border2:#3a4a66;
-  --text:#f0f4ff;--text2:#b8c8e8;--text3:#7a90b8;
-  --accent:#22d3ff;--accent2:#0ea5e9;
-  --green:#22ff88;--yellow:#ffe048;--red:#ff3b3b;--purple:#c084fc;
-  --tab-h:62px;--fs:15px;--fs-hdt:13px;
+  --bg:#0b0d13;
+  --grad-main: linear-gradient(135deg, #0d121f 0%, #151c33 100%);
+  --grad-card: linear-gradient(145deg, rgba(26,35,58,0.7) 0%, rgba(18,24,41,0.8) 100%);
+  --grad-accent: linear-gradient(90deg, #3a9de8 0%, #6875f5 100%);
+  --bg2:#141b2e;--bg3:#1b243d;--bg4:#243052;
+  --border:rgba(58,157,232,0.15);--border2:rgba(58,157,232,0.3);
+  --text:#f0f5ff;--text2:#b2c5e0;--text3:#748ba8;
+  --accent:#3a9de8;--accent2:#5eb8ff;
+  --green:#10b981;--yellow:#f59e0b;--red:#ef4444;--purple:#8b5cf6;
+  --tab-h:62px;--fs:16px;--rad:14px;--rad2:8px;
 }
-body.day{--bg:#eef2fb;--bg2:#dde6f4;--bg3:#d0dcee;--bg4:#c2d0e6;--border:#99b0cc;--border2:#7898bb;--text:#08121e;--text2:#162840;--text3:#3a5070;--accent:#0073b8;--accent2:#005a8e;--green:#0a7a3c;--yellow:#7a5500;--red:#bb0018;--purple:#5200a0}
+
+body.day{--bg:#f0f4f8;--bg2:#e2eaf4;--bg3:#d4e0ef;--bg4:#c6d4e8;--border:#9db6ce;--border2:#7a9cc0;--text:#0a1826;--text2:#1a3050;--text3:#3a587a;--accent:#1a7ec8;--accent2:#1260a0;--green:#0f8a50;--yellow:#a06800;--red:#c8282a;--purple:#6030b0}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
 body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;font-size:var(--fs);display:flex;flex-direction:column;transition:background .3s,color .3s}
@@ -225,6 +230,10 @@ body.sc-gold{--accent:#ffe048;--accent2:#ca8a04}
 body.sc-teal{--accent:#2dd4bf;--accent2:#0d9488}
 body.sc-pink{--accent:#f472b6;--accent2:#db2777}
 
+.sort-opt{padding:10px 8px;border-radius:10px;border:1.5px solid var(--border2);background:var(--bg3);color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;text-align:center;letter-spacing:.5px;width:100%}
+.sort-opt:active{transform:scale(.95)}
+.sort-active{border-color:var(--accent);background:rgba(58,157,232,.18);color:var(--accent2)}
+
 </style>
 </head>
 <body>
@@ -275,7 +284,7 @@ body.sc-pink{--accent:#f472b6;--accent2:#db2777}
     <div class="sec-body">
       <div class="serial-row">
         <div><div class="serial-lbl">Serial No.</div><div class="serial-badge" id="serialBadge">#001</div></div>
-        <div style="flex:1"><label>Date &amp; Time</label><input type="datetime-local" id="f_dt"></div>
+        <div style="flex:1"><label>Date &amp; Time</label><input type="datetime-local" id="f_dt" style="display:none"><div id="f_dt_display" style="background:rgba(94,184,255,.07);border:1.5px solid var(--border2);border-radius:9px;padding:10px 13px;font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:.5px">&#128336; Auto &mdash; Now</div></div>
       </div>
       <div class="plate-panel">
         <div class="plate-lbl">&#127579; License Plate</div>
@@ -379,6 +388,7 @@ body.sc-pink{--accent:#f472b6;--accent2:#db2777}
         <div class="prev-card"><div class="prev-num" id="pvMissing" style="color:var(--red)">&#8212;</div><div class="prev-lbl">Missing Keys</div></div>
       </div>
       <button class="btn-primary" style="background:linear-gradient(135deg,#16a34a,#22ff88);box-shadow:0 4px 22px rgba(34,255,136,.4)" onclick="printLog()">&#128424; PRINT / SAVE AS PDF</button>
+      <button class="btn-primary" style="background:linear-gradient(135deg,#1a4fc8,#5b21b6);box-shadow:0 4px 22px rgba(91,33,182,.45);margin-top:0" onclick="openSortPrint()">&#127381; SORT &amp; PRINT</button>
       <button class="btn-action adl" style="width:100%" onclick="downloadHTMLReport()">
         <div class="btn-action-icon">&#128196;</div>
         <div class="btn-action-text"><strong>Download HTML Report</strong><span>Open in Chrome then Print to PDF</span></div>
@@ -395,6 +405,92 @@ body.sc-pink{--accent:#f472b6;--accent2:#db2777}
       <div>&#8226; Created by: Raja Farrakh Ayyaz</div>
     </div>
   </div>
+
+  <div class="section" style="margin-top:10px">
+    <div class="sec-hdr">&#128229; Import &amp; Reprint</div>
+    <div class="sec-body">
+      <div class="print-note" style="border-color:rgba(91,33,182,.5);background:rgba(91,33,182,.08)">
+        <strong>&#128196; How it works:</strong> Export a <code>.uaqpark</code> data file from any date below, share it, then import it here on any device to reprint in a different sort order.
+      </div>
+
+      <!-- EXPORT BLOCK -->
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Step 1 — Export Data File</div>
+      <button class="btn-action adl" style="width:100%" onclick="exportDataFile()">
+        <div class="btn-action-icon">&#128228;</div>
+        <div class="btn-action-text"><strong>Export .uaqpark File</strong><span>Saves selected date as a shareable data file</span></div>
+      </button>
+
+      <!-- IMPORT BLOCK -->
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin:14px 0 6px">Step 2 — Import &amp; Reprint</div>
+      <label id="importDropZone" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:2px dashed var(--border2);border-radius:12px;padding:18px 12px;cursor:pointer;transition:border-color .2s;background:var(--bg3)" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="this.style.borderColor='var(--border2)'" ondrop="handleImportDrop(event)">
+        <span style="font-size:28px">&#128229;</span>
+        <span style="font-size:13px;font-weight:700;color:var(--text2)">Tap to choose or drag &amp; drop</span>
+        <span style="font-size:11px;color:var(--text3)">.uaqpark file</span>
+        <input type="file" id="importFileInput" accept=".uaqpark,.json" style="display:none" onchange="handleImportFile(this)">
+      </label>
+      <div id="importPreview" style="display:none;margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--border2)">
+        <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px" id="importFileName"></div>
+        <div style="font-size:12px;color:var(--text2)" id="importFileMeta"></div>
+        <button onclick="openImportSortPrint()" style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:none;background:linear-gradient(135deg,#1a4fc8,#5b21b6);color:#fff;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px">&#127381; CHOOSE SORT &amp; REPRINT</button>
+        <button onclick="clearImport()" style="margin-top:7px;width:100%;padding:8px;border-radius:10px;border:1.5px solid var(--border2);background:transparent;color:var(--text3);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer">&#10006; Clear</button>
+      </div>
+    </div>
+  </div>
+
+<!-- Import Sort-Print Modal -->
+<div id="importSortModal" style="display:none;position:fixed;inset:0;z-index:8100;background:rgba(0,0,0,.78);align-items:center;justify-content:center">
+  <div style="background:var(--bg2);border:1.5px solid var(--border2);border-radius:18px;padding:24px 22px;width:92%;max-width:380px;box-shadow:0 8px 40px rgba(0,0,0,.7)">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:700;letter-spacing:2px;color:var(--accent);margin-bottom:2px;text-transform:uppercase">&#127381; Reprint Imported File</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:4px" id="isp_filelabel"></div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:16px" id="isp_metalabel"></div>
+
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--text2);text-transform:uppercase;margin-bottom:8px">Sort By</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px">
+      <button onclick="selectISort('car')"   id="isb_car"   class="sort-opt sort-active">&#128663; Car Number</button>
+      <button onclick="selectISort('park')"  id="isb_park"  class="sort-opt">&#128273; Parking No.</button>
+      <button onclick="selectISort('model')" id="isb_model" class="sort-opt">&#128664; Model</button>
+      <button onclick="selectISort('cat')"   id="isb_cat"   class="sort-opt">&#127384; Category</button>
+    </div>
+
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--text2);text-transform:uppercase;margin-bottom:8px">Order</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:22px">
+      <button onclick="selectIOrder('asc')"  id="iob_asc"   class="sort-opt sort-active">&#8679; Ascending</button>
+      <button onclick="selectIOrder('desc')" id="iob_desc"  class="sort-opt">&#8681; Descending</button>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button onclick="closeImportSortPrint()" style="flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--border2);background:transparent;color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;cursor:pointer">Cancel</button>
+      <button onclick="execImportSortPrint()" style="flex:2;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#1a4fc8,#5b21b6);color:#fff;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px">&#128424; REPRINT</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sort-Print Modal -->
+<div id="sortPrintModal" style="display:none;position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.72);align-items:center;justify-content:center">
+  <div style="background:var(--bg2);border:1.5px solid var(--border2);border-radius:18px;padding:24px 22px;width:92%;max-width:380px;box-shadow:0 8px 40px rgba(0,0,0,.7)">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:700;letter-spacing:2px;color:var(--accent);margin-bottom:4px;text-transform:uppercase">&#127381; Sort &amp; Print</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:18px;letter-spacing:.5px">Choose sort order then print</div>
+
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--text2);text-transform:uppercase;margin-bottom:8px">Sort By</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px" id="sortBtns">
+      <button onclick="selectSort('car')" id="sb_car"   class="sort-opt sort-active">&#128663; Car Number</button>
+      <button onclick="selectSort('park')" id="sb_park" class="sort-opt">&#128273; Parking No.</button>
+      <button onclick="selectSort('model')" id="sb_model" class="sort-opt">&#128664; Model</button>
+      <button onclick="selectSort('cat')" id="sb_cat"   class="sort-opt">&#127384; Category</button>
+    </div>
+
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--text2);text-transform:uppercase;margin-bottom:8px">Order</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:22px" id="orderBtns">
+      <button onclick="selectOrder('asc')" id="ob_asc"  class="sort-opt sort-active">&#8679; Ascending</button>
+      <button onclick="selectOrder('desc')" id="ob_desc" class="sort-opt">&#8681; Descending</button>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button onclick="closeSortPrint()" style="flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--border2);background:transparent;color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;cursor:pointer">Cancel</button>
+      <button onclick="execSortPrint()" style="flex:2;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#1a4fc8,#5b21b6);color:#fff;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px">&#128424; PRINT</button>
+    </div>
+  </div>
+</div>
 </div>
 </div><!-- /main -->
 <nav class="tab-bar">
@@ -426,15 +522,7 @@ body.sc-pink{--accent:#f472b6;--accent2:#db2777}
         <button class="mode-btn" id="modeSys" onclick="setMode('system')">&#128187; System</button>
       </div>
     </div>
-    <div class="ssec">
-      <div class="ssec-title">&#128288; Font Size</div>
-      <div class="fs-row">
-        <button class="fs-btn" id="fsSmall" onclick="setFs('small')">Small</button>
-        <button class="fs-btn active" id="fsNormal" onclick="setFs('normal')">Normal</button>
-        <button class="fs-btn" id="fsLarge" onclick="setFs('large')">Large</button>
-        <button class="fs-btn" id="fsXL" onclick="setFs('xlarge')">X-Large</button>
-      </div>
-    </div>
+
     <div class="ssec">
       <div class="ssec-title">&#127912; Color Scheme</div>
       <div class="scheme-grid">
@@ -467,9 +555,9 @@ body.sc-pink{--accent:#f472b6;--accent2:#db2777}
         <div class="about-ver">Digital Parking Tracker &nbsp;&#183;&nbsp; v9.0</div>
         <div class="about-desc">Complete offline parking management for UAQ Security personnel. Track vehicles, key status, and generate daily reports &#8212; fully stored on device, no internet required.</div>
       </div>
-      <a class="contact-link" href="mailto:uaqsecurity@gmail.com">
+      <a class="contact-link" href="mailto:fadhanyal@gmail.com">
         <div class="contact-icon">&#9993;&#65039;</div>
-        <div class="contact-info"><strong>Contact Developer</strong><span>uaqsecurity@gmail.com</span></div>
+        <div class="contact-info"><strong>Contact Developer</strong><span>fadhanyal@gmail.com</span></div>
       </a>
       <div class="srow" style="margin-top:8px">
         <div class="srow-label">Developer</div>
@@ -534,9 +622,6 @@ function openSettings(){
   ['modeDay','modeNight','modeSys'].forEach(function(id){document.getElementById(id).classList.remove('active');});
   var mId={day:'modeDay',night:'modeNight',system:'modeSys'}[c.mode]||'modeNight';
   document.getElementById(mId).classList.add('active');
-  ['fsSmall','fsNormal','fsLarge','fsXL'].forEach(function(id){document.getElementById(id).classList.remove('active');});
-  var fId={small:'fsSmall',normal:'fsNormal',large:'fsLarge',xlarge:'fsXL'}[c.fs]||'fsNormal';
-  document.getElementById(fId).classList.add('active');
   document.querySelectorAll('.sc-dot').forEach(function(d){d.textContent='';d.classList.remove('active');});
   var dot=document.getElementById('dot-'+(c.scheme||'blue'));
   if(dot){dot.textContent='\u2713';dot.classList.add('active');}
@@ -727,8 +812,14 @@ function save(){localStorage.setItem(S_EN,JSON.stringify(entries));}
 /* DATE/TIME */
 function todayStr(){return new Date().toISOString().slice(0,10);}
 function getNow(){return new Date().toISOString().slice(0,16);}
-function setNow(){document.getElementById('f_dt').value=getNow();}
-function tickDate(){
+function setNow(){
+  var n=getNow();
+  document.getElementById('f_dt').value=n;
+  var d=new Date();
+  var disp=document.getElementById('f_dt_display');
+  if(disp)disp.textContent='⏰ '+d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' — '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+}
+function tickDate(){setNow();
   var d=new Date();
   document.getElementById('hdrDate').innerHTML=d.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short'})+'<br>'+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 }
@@ -769,15 +860,33 @@ function selectEditCat(v){
 function addEntry(){
   var em=document.getElementById('f_em').value;
   var num=document.getElementById('f_num').value.trim();
+  var code=document.getElementById('f_code').value.trim().toUpperCase();
+  var park=document.getElementById('f_park').value.trim();
   var key=document.getElementById('f_key').value;
   if(!em||!num||!key){showToast('Fill Emirate, Number & Key Status','err');return;}
-  var dt=document.getElementById('f_dt').value||getNow();
+  var dt=getNow();
   var dd=dt.slice(0,10);
+  /* Duplicate car number check (same date) */
+  var dupCar=entries.some(function(e){
+    return (e.datetime||'').startsWith(dd)&&
+      (e.emirate||'')===em&&
+      (e.code||'').toUpperCase()===(code||'').toUpperCase()&&
+      String(e.number||'').trim()===String(num).trim();
+  });
+  if(dupCar){showToast('Duplicate! Car already entered today','err');return;}
+  /* Duplicate parking number check (same date, non-empty) */
+  if(park){
+    var dupPark=entries.some(function(e){
+      return (e.datetime||'').startsWith(dd)&&
+        (e.parking||'').trim().toUpperCase()===park.toUpperCase();
+    });
+    if(dupPark){showToast('Duplicate! Parking no. already used today','err');return;}
+  }
   var dc=entries.filter(function(e){return(e.datetime||'').startsWith(dd);}).length;
   var entry={id:Date.now(),serial:dc+1,datetime:dt,emirate:em,
-    code:document.getElementById('f_code').value.trim().toUpperCase(),
+    code:code,
     number:num,model:document.getElementById('f_model').value.trim(),
-    parking:document.getElementById('f_park').value.trim(),key:key,
+    parking:park,key:key,
     cat:document.getElementById('f_cat').value||''};
   entries.push(entry);save();updateSerial();renderLog();
   showToast('Entry #'+String(entry.serial).padStart(3,'0')+' added','ok');
@@ -835,12 +944,34 @@ function openEdit(id){
 }
 function saveEdit(id){
   var i=entries.findIndex(function(x){return x.id===id;});if(i<0)return;
-  entries[i].datetime=document.getElementById('e_dt').value;
-  entries[i].emirate=document.getElementById('e_em').value;
-  entries[i].code=document.getElementById('e_code').value.toUpperCase();
-  entries[i].number=document.getElementById('e_num').value;
+  var newDt=document.getElementById('e_dt').value;
+  var newEm=document.getElementById('e_em').value;
+  var newCode=document.getElementById('e_code').value.toUpperCase();
+  var newNum=document.getElementById('e_num').value.trim();
+  var newPark=document.getElementById('e_park').value.trim();
+  var dd=(newDt||'').slice(0,10);
+  /* Duplicate car number check (exclude self) */
+  var dupCar=entries.some(function(e,idx){
+    return idx!==i&&(e.datetime||'').startsWith(dd)&&
+      (e.emirate||'')===newEm&&
+      (e.code||'').toUpperCase()===newCode&&
+      String(e.number||'').trim()===newNum;
+  });
+  if(dupCar){showToast('Duplicate! Car already entered for this date','err');return;}
+  /* Duplicate parking check (exclude self, non-empty) */
+  if(newPark){
+    var dupPark=entries.some(function(e,idx){
+      return idx!==i&&(e.datetime||'').startsWith(dd)&&
+        (e.parking||'').trim().toUpperCase()===newPark.toUpperCase();
+    });
+    if(dupPark){showToast('Duplicate! Parking no. already used for this date','err');return;}
+  }
+  entries[i].datetime=newDt;
+  entries[i].emirate=newEm;
+  entries[i].code=newCode;
+  entries[i].number=newNum;
   entries[i].model=document.getElementById('e_model').value;
-  entries[i].parking=document.getElementById('e_park').value;
+  entries[i].parking=newPark;
   entries[i].key=document.getElementById('e_key').value;
   entries[i].cat=document.getElementById('e_cat').value;
   save();closeModal();renderLog();showToast('Updated','ok');
@@ -1039,73 +1170,171 @@ function shareViaWhatsApp(){
 function buildPrintHTML(date){
   var list=getByDate(date);
   if(!list.length)return null;
+  /* Format date as "DDDD, MM, YYYY" e.g. "Monday, 06, 2025" */
+  var dateObj=new Date(date+'T00:00:00');
+  var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var dayName=days[dateObj.getDay()];
+  var mm=String(dateObj.getMonth()+1).padStart(2,'0');
+  var yyyy=dateObj.getFullYear();
+  var fmtDate=dayName+', '+mm+', '+yyyy;
   var total=list.length;
   var missing=list.filter(function(e){return e.key==='Missing';}).length;
   var pri=list.filter(function(e){return e.cat==='PRI';});
   var pol=list.filter(function(e){return e.cat==='POL';});
   var oth=list.filter(function(e){return e.cat!=='PRI'&&e.cat!=='POL';});
-  var PBg='#dcfce7',PC='#166534',PBr='#86efac';
-  var OBg='#fee2e2',OC='#991b1b',OBr='#fca5a5';
-  function sHdr(lbl,cnt,bg,c,ico){
-    return '<tr><td colspan="7" style="background:'+bg+';color:'+c+';font-weight:800;font-size:9px;letter-spacing:2px;padding:4px 5px;border:1px solid #bbb">'+ico+' '+lbl+' - '+cnt+' cars</td></tr>';
-  }
-  function dRows(arr,b1,b2){
-    var out='';
-    arr.forEach(function(e,i){
-      var bg=i%2===0?b1:b2;
-      var catCell=e.cat?('<span style="display:inline-block;padding:1px 6px;border-radius:5px;font-size:9px;font-weight:800;background:'+(e.cat==='PRI'?PBg:OBg)+';color:'+(e.cat==='PRI'?PC:OC)+';border:1px solid '+(e.cat==='PRI'?PBr:OBr)+'">'+e.cat+'</span>'):'-';
-      var keyCell='<span style="display:inline-block;padding:1px 5px;border-radius:8px;font-size:8px;font-weight:700;background:'+kBg(e.key)+';color:'+kFg(e.key)+';border:1px solid '+kFg(e.key)+'">'+e.key+'</span>';
-      out+='<tr style="background:'+bg+'">'+
-        '<td style="text-align:center;font-weight:700;border:1px solid #ccc;padding:3px;font-size:9px">'+e.serial+'</td>'+
-        '<td style="border:1px solid #ccc;padding:3px;font-size:9px">'+fmtTime(e.datetime)+'</td>'+
-        '<td style="font-family:Courier New,monospace;font-weight:700;font-size:10px;border:1px solid #ccc;padding:3px">'+e.emirate+' '+(e.code||'')+' '+e.number+'</td>'+
-        '<td style="border:1px solid #ccc;padding:3px;font-size:9px">'+(e.model||'-')+'</td>'+
-        '<td style="text-align:center;border:1px solid #ccc;padding:3px;font-size:9px">'+(e.parking||'-')+'</td>'+
-        '<td style="text-align:center;border:1px solid #ccc;padding:3px">'+keyCell+'</td>'+
-        '<td style="text-align:center;border:1px solid #ccc;padding:3px">'+catCell+'</td>'+
-        '</tr>';
+  var PBg='#d4edda',PC='#000000',PBr='#555';
+  var OBg='#f8d7da',OC='#000000',OBr='#555';
+
+  /* Build a mini table (no Cat column) for use inside a column */
+  function buildTable(sections){
+    /* sections = [{label,cnt,bg,c,ico,rows:[],b1,b2}, ...] */
+    var COLS=5; /* # - Plate - Model - Park - Key */
+    var html='<table><thead><tr>'+
+      '<th style="width:18px">#</th>'+
+      '<th style="width:85px">Plate</th>'+
+      '<th style="width:68px">Model</th>'+
+      '<th style="width:32px;text-align:center">Park</th>'+
+      '<th style="width:72px;text-align:center">Key Status</th>'+
+      '</tr></thead><tbody>';
+    var serial=1;
+    sections.forEach(function(sec){
+      if(!sec.rows.length)return;
+      html+='<tr><td colspan="'+COLS+'" style="background:'+sec.bg+';color:'+sec.c+';font-weight:800;font-size:12px;letter-spacing:1.5px;padding:4px 5px;border:1px solid #bbb">'+sec.ico+' '+sec.label+' — '+sec.cnt+' cars</td></tr>';
+      sec.rows.forEach(function(e,i){
+        var bg=i%2===0?sec.b1:sec.b2;
+        var keyCell='<span style="display:inline-block;padding:2px 5px;border-radius:6px;font-size:11px;font-weight:700;background:'+kBg(e.key)+';color:'+kFg(e.key)+';border:1px solid '+kFg(e.key)+'">'+e.key+'</span>';
+        var plateStr=e.emirate+(e.code?' '+e.code:'')+' '+e.number;
+        var parkStr=(e.parking||'-');
+        html+='<tr style="background:'+bg+'">'+
+          '<td style="text-align:center;font-weight:700;border:1px solid #ccc;padding:3px 3px;font-size:12px">'+serial+'</td>'+
+          '<td style="font-family:Courier New,monospace;font-weight:700;font-size:12px;border:1px solid #ccc;padding:3px 3px;word-break:break-all">'+plateStr+'</td>'+
+          '<td style="border:1px solid #ccc;padding:3px 3px;font-size:11px">'+(e.model||'-')+'</td>'+
+          '<td style="text-align:center;border:1px solid #ccc;padding:3px 3px;font-size:11px;white-space:nowrap;font-weight:700">'+parkStr+'</td>'+
+          '<td style="text-align:center;border:1px solid #ccc;padding:3px 3px">'+keyCell+'</td>'+
+          '</tr>';
+        serial++;
+      });
     });
-    return out;
+    html+='</tbody></table>';
+    return html;
   }
-  var rows='';
-  if(pri.length)rows+=sHdr('PRI',pri.length,PBg,PC,'[PRI]')+dRows(pri,'#f0fff4','#e8fef0');
-  if(pol.length)rows+=sHdr('POL',pol.length,OBg,OC,'[POL]')+dRows(pol,'#fff5f5','#fff0f0');
-  if(oth.length){
-    if(pri.length||pol.length)rows+='<tr><td colspan="7" style="background:#f5f5f5;color:#666;font-weight:700;font-size:9px;padding:3px 5px;border:1px solid #bbb">OTHER - '+oth.length+' cars</td></tr>';
-    rows+=dRows(oth,'#fafafa','#f3f3f3');
+
+  /* Sort each category by car number (numeric, ascending) */
+  function sortByNumber(arr){
+    return arr.slice().sort(function(a,b){
+      var sa=String(a.number||'').trim();
+      var sb=String(b.number||'').trim();
+      var na=parseFloat(sa);
+      var nb=parseFloat(sb);
+      if(!isNaN(na)&&!isNaN(nb))return na-nb;
+      return sa.localeCompare(sb,undefined,{numeric:true,sensitivity:'base'});
+    });
   }
-  var sumbar='<div class="sb" style="background:#dbeafe;color:#1d4ed8;border-color:#93c5fd">Total: '+total+'</div>'+
-    '<div class="sb" style="background:#ffebee;color:#c62828;border-color:#f87171">Missing: '+missing+'</div>'+
-    (pri.length?'<div class="sb" style="background:'+PBg+';color:'+PC+';border-color:'+PBr+'">PRI: '+pri.length+'</div>':'')+
-    (pol.length?'<div class="sb" style="background:'+OBg+';color:'+OC+';border-color:'+OBr+'">POL: '+pol.length+'</div>':'');
+  var priSorted=sortByNumber(pri);
+  var polSorted=sortByNumber(pol);
+
+  /* Build a single full-width table with PRI on top, POL on bottom */
+  function buildSingleTable(priRows, polRows){
+    var COLS=5; /* # - Plate - Model - Park - Key */
+    var html='<table><thead><tr>'+
+      '<th style="width:30px">#</th>'+
+      '<th style="width:120px">Plate</th>'+
+      '<th style="width:100px">Model</th>'+
+      '<th style="width:120px">Parking</th>'+
+      '<th style="width:100px;text-align:center">Key Status</th>'+
+      '</tr></thead><tbody>';
+    var serial=1;
+    /* PRI section */
+    if(priRows.length){
+      html+='<tr><td colspan="'+COLS+'" class="cat-hdr-pri">[PRI] PRI — '+priRows.length+' cars</td></tr>';
+      priRows.forEach(function(e,i){
+        var keyCell='<span style="display:inline-block;padding:2px 5px;border-radius:6px;font-size:11pt;font-weight:700;background:'+kBg(e.key)+';color:'+kFg(e.key)+';border:1px solid '+kFg(e.key)+'">'+e.key+'</span>';
+        var plateCell='<span class="plate-em">'+e.emirate+'</span><span class="plate-cd">'+(e.code||'')+'</span><span class="plate-nm">'+e.number+'</span>';
+        var parkStr=(e.parking||'-');
+        var modelStr=(e.model||'-').toUpperCase();
+        html+='<tr style="background:#fff">'+
+          '<td style="text-align:center;font-weight:900;border:1.5px solid #000;font-size:12pt">'+serial+'</td>'+
+          '<td style="font-family:Courier New,monospace;font-weight:900;font-size:12pt;border:1.5px solid #000">'+plateCell+'</td>'+
+          '<td style="border:1.5px solid #000;font-size:12pt;font-weight:700">'+modelStr+'</td>'+
+          '<td style="border:1.5px solid #000;font-size:12pt;font-weight:900;white-space:normal;word-break:break-word">'+parkStr+'</td>'+
+          '<td style="text-align:center;border:1.5px solid #000">'+keyCell+'</td>'+
+          '</tr>';
+        serial++;
+      });
+    }
+    /* POL section */
+    if(polRows.length){
+      html+='<tr><td colspan="'+COLS+'" class="cat-hdr-pol">[POL] POL — '+polRows.length+' cars</td></tr>';
+      polRows.forEach(function(e,i){
+        var isMissing=(e.key==='Missing');
+        var keyStyle='display:inline-block;padding:2px 5px;border-radius:6px;font-size:11pt;font-weight:700;background:'+kBg(e.key)+';color:'+kFg(e.key)+';border:1px solid '+kFg(e.key);
+        if(isMissing) keyStyle+=';color:#cc0000;font-weight:900';
+        var keyCell='<span style="'+keyStyle+'">'+e.key+'</span>';
+        var plateCell='<span class="plate-em" style="color:#cc0000">'+e.emirate+'</span><span class="plate-cd" style="color:#cc0000">'+(e.code||'')+'</span><span class="plate-nm" style="color:#cc0000">'+e.number+'</span>';
+        var parkStr=(e.parking||'-');
+        var modelStr=(e.model||'-').toUpperCase();
+        html+='<tr style="background:#fff">'+
+          '<td style="text-align:center;font-weight:900;border:1.5px solid #000;font-size:12pt">'+serial+'</td>'+
+          '<td style="font-family:Courier New,monospace;font-weight:900;font-size:12pt;border:1.5px solid #000">'+plateCell+'</td>'+
+          '<td style="border:1.5px solid #000;font-size:12pt;font-weight:700;color:#cc0000">'+modelStr+'</td>'+
+          '<td style="border:1.5px solid #000;font-size:12pt;font-weight:900;white-space:normal;word-break:break-word;color:#cc0000">'+parkStr+'</td>'+
+          '<td style="text-align:center;border:1.5px solid #000">'+keyCell+'</td>'+
+          '</tr>';
+        serial++;
+      });
+    }
+    html+='</tbody></table>';
+    return html;
+  }
+  var singleTable=buildSingleTable(priSorted, polSorted);
+
+  var sumbar='<span class="sb-total">Total: '+total+'</span>'+
+    (missing?'<span class="sb-miss"> &nbsp;|&nbsp; Missing Keys: '+missing+'</span>':'')+
+    (pri.length?'<span class="sb-pri"> &nbsp;|&nbsp; PRI: '+pri.length+'</span>':'')+
+    (pol.length?'<span class="sb-pol"> &nbsp;|&nbsp; POL: '+pol.length+'</span>':'');
+
   return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>UAQSecurity '+date+'</title>'+
-    '<style>@page{size:A4 portrait;margin:7mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:10px;color:#111;margin:0}'+
-    '.top{display:flex;justify-content:space-between;margin-bottom:5px;padding-bottom:5px;border-bottom:2px solid #1c2333}'+
-    '.brand{font-size:15px;font-weight:900;color:#1c2333;letter-spacing:2px}.brand span{color:#0ea5e9}'+
-    '.sb-row{display:flex;gap:5px;margin-bottom:6px}.sb{padding:3px 10px;border-radius:6px;font-weight:700;border:1.5px solid;font-size:10px}'+
-    'table{width:100%;border-collapse:collapse}th{background:#1c2333;color:#fff;padding:5px 4px;text-align:left;font-size:8px;letter-spacing:.8px;text-transform:uppercase;border:1px solid #2e3a50}'+
-    '.foot{margin-top:6px;padding-top:5px;border-top:1px solid #ccc;display:flex;justify-content:space-between;font-size:8px;color:#888}'+
-    '.sig-row{margin-top:18px;display:flex;justify-content:space-between}.sigbox{text-align:center}'+
-    '.sigline{border-top:1px solid #333;width:180px;margin-bottom:3px}.siglbl{font-size:8px;color:#555}'+
-    '.creator{font-size:9px;color:#555;text-align:right;line-height:1.5}.creator span{display:block;font-size:11px;font-weight:800;color:#1c2333;letter-spacing:2px;text-transform:uppercase}'+
+    '<style>'+
+    '@page{size:A4 portrait;margin:12mm 12mm 20mm 12mm}'+
+    '@page{@bottom-center{content:"Page " counter(page) " of " counter(pages);font-family:Arial,sans-serif;font-size:10pt;color:#000;font-weight:700}}'+
+    '*{box-sizing:border-box}'+
+    'body{font-family:Arial,sans-serif;font-size:12pt;color:#000;margin:0;background:#fff}'+
+    '.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;padding:6px 0;color:#000}'+
+    '.brand{font-size:20px;font-weight:900;color:#000;letter-spacing:3px}.brand span{color:#000}'+
+    '.top-meta{font-size:10px;color:#000;letter-spacing:1.5px;margin-top:2px}'+
+    '.top-date{font-size:9px;color:#333;margin-top:3px}'+
+    '.top-stats{font-size:11px;color:#000;text-align:right;font-weight:700;line-height:1.8}'+
+    '.sb-row{display:flex;gap:12px;margin-bottom:7px;align-items:baseline}'+
+    '.sb-total{font-size:14px;font-weight:900;color:#000}'+
+    '.sb-pri{font-size:14px;font-weight:900;color:#0a2a8a}'+
+    '.sb-pol{font-size:14px;font-weight:900;color:#cc0000}'+
+    '.sb-miss{font-size:13px;font-weight:700;color:#cc0000}'+
+    'table{width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:12px}'+
+    'th{background:#fff;color:#000;padding:7px 4px;text-align:left;font-size:13pt;letter-spacing:.5px;text-transform:uppercase;border:1.5px solid #000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:900}'+
+    'td{overflow:hidden;text-overflow:ellipsis;font-size:12pt;padding:3px 4px;line-height:1.3}'+
+    'tr{height:auto}'+
+    '.cat-hdr-pri{background:#fff;color:#0a2a8a;font-weight:900;font-size:13pt;letter-spacing:1.5px;padding:6px 6px;border:1.5px solid #000}'+
+    '.cat-hdr-pol{background:#fff;color:#cc0000;font-weight:900;font-size:13pt;letter-spacing:1.5px;padding:6px 6px;border:1.5px solid #000}'+
+    '.pol-emirate{color:#cc0000;font-weight:700}'+
+    '.pol-missing{color:#cc0000;font-weight:900}'+
+    '.pol-plate{color:#cc0000;font-weight:700}'+
+    '.foot{margin-top:7px;padding:5px 12px;border-radius:4px;background:#fff;color:#000;border:2px solid #000;display:flex;justify-content:space-between;font-size:11px;font-weight:700}'+
+    '.plate-em{display:inline-block;width:42px;font-weight:900}'+
+    '.plate-cd{display:inline-block;width:28px}'+
+    '.plate-nm{display:inline-block;min-width:50px;font-weight:900}'+
+    '.creator{font-size:10px;color:#555;text-align:right;line-height:1.6;margin-top:8px}.creator span{display:block;font-size:13px;font-weight:900;color:#000;letter-spacing:2px;text-transform:uppercase}'+
     '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'+
     '</style></head><body>'+
     '<div class="top"><div>'+
     '<div class="brand">UAQ<span>SECURITY</span></div>'+
-    '<div style="font-size:8px;color:#888;letter-spacing:2px">DIGITAL PARKING TRACKER</div>'+
-    '<div style="font-size:8px;color:#555;margin-top:2px">Date: <strong>'+date+'</strong> | Printed: '+new Date().toLocaleString()+'</div>'+
-    '</div><div style="font-size:9px;color:#444;text-align:right">Total: '+total+' | Missing: '+missing+'<br>PRI: '+pri.length+' | POL: '+pol.length+'</div></div>'+
+    '<div class="top-meta">DIGITAL PARKING TRACKER</div>'+
+    '<div class="top-date">Date: <strong>'+fmtDate+'</strong> &nbsp;|&nbsp; Printed: '+new Date().toLocaleString()+'</div>'+
+    '</div></div>'+
     '<div class="sb-row">'+sumbar+'</div>'+
-    '<table><thead><tr>'+
-    '<th style="width:20px">#</th><th style="width:42px">Time</th><th style="width:98px">Plate</th>'+
-    '<th>Model</th><th style="width:44px;text-align:center">Park</th>'+
-    '<th style="width:86px;text-align:center">Key Status</th><th style="width:34px;text-align:center">Cat</th>'+
-    '</tr></thead><tbody>'+rows+'</tbody></table>'+
-    '<div class="foot"><div>UAQSecurity - Confidential | PRI: '+pri.length+' | POL: '+pol.length+' | Total: '+total+'</div><div>Page 1</div></div>'+
-    '<div class="sig-row">'+
-    '<div class="sigbox"><div class="sigline"></div><div class="siglbl">Security Officer Signature &amp; Stamp</div></div>'+
+    singleTable+
+    '<div class="foot"><div>UAQSecurity — Confidential &nbsp;|&nbsp; PRI: '+pri.length+' &nbsp; POL: '+pol.length+' &nbsp; Total: '+total+'</div></div>'+
     '<div class="creator">Created by<span>Raja Farrakh Ayyaz</span></div>'+
-    '</div></body></html>';
+    '</body></html>';
 }
 function printLog(){
   var date=document.getElementById('printDate').value||todayStr();
@@ -1135,6 +1364,319 @@ function downloadHTMLReport(){
   document.body.appendChild(a);a.click();
   setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1000);
   showToast('Report downloaded - open in Chrome then Print','ok');
+}
+
+
+/* ── SORT & PRINT ── */
+var _sortBy='car', _sortOrder='asc';
+function selectSort(v){
+  _sortBy=v;
+  ['car','park','model','cat'].forEach(function(k){
+    var el=document.getElementById('sb_'+k);
+    if(el) el.className='sort-opt'+(k===v?' sort-active':'');
+  });
+}
+function selectOrder(v){
+  _sortOrder=v;
+  ['asc','desc'].forEach(function(k){
+    var el=document.getElementById('ob_'+k);
+    if(el) el.className='sort-opt'+(k===v?' sort-active':'');
+  });
+}
+function openSortPrint(){
+  var m=document.getElementById('sortPrintModal');
+  m.style.display='flex';
+  selectSort(_sortBy); selectOrder(_sortOrder);
+}
+function closeSortPrint(){
+  document.getElementById('sortPrintModal').style.display='none';
+}
+function execSortPrint(){
+  closeSortPrint();
+  var date=document.getElementById('printDate').value||todayStr();
+  var html=buildSortedPrintHTML(date,_sortBy,_sortOrder);
+  if(!html){showToast('No entries for this date','err');return;}
+  var win=window.open('','_blank');
+  if(win){
+    win.document.write(html);win.document.close();win.focus();
+    setTimeout(function(){win.print();},700);
+    showToast('Sort & Print dialog opening...','ok');
+  } else {
+    var blob=new Blob([html],{type:'text/html'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');a.href=url;a.target='_blank';
+    document.body.appendChild(a);a.click();
+    setTimeout(function(){URL.revokeObjectURL(url);a.remove();},2000);
+    showToast('Opened in browser - use Print menu','warn');
+  }
+}
+function buildSortedPrintHTML(date,sortBy,sortOrder,overrideEntries){
+  var list=overrideEntries||getByDate(date);
+  if(!list.length)return null;
+  var dateObj=new Date(date+'T00:00:00');
+  var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var dayName=days[dateObj.getDay()];
+  var mm=String(dateObj.getMonth()+1).padStart(2,'0');
+  var dd=String(dateObj.getDate()).padStart(2,'0');
+  var yyyy=dateObj.getFullYear();
+  var fmtDate=dayName+', '+dd+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][dateObj.getMonth()]+' '+yyyy;
+  var total=list.length;
+  var missing=list.filter(function(e){return e.key==='Missing';}).length;
+  var pri=list.filter(function(e){return e.cat==='PRI';});
+  var pol=list.filter(function(e){return e.cat==='POL';});
+
+  var sortLabels={car:'Car Number',park:'Parking No.',model:'Model',cat:'Category'};
+  var sortLabel=sortLabels[sortBy]||sortBy;
+  var orderLabel=sortOrder==='asc'?'Ascending':'Descending';
+
+  function sorter(arr){
+    return arr.slice().sort(function(a,b){
+      var va,vb;
+      if(sortBy==='car'){
+        va=String(a.number||'').trim();
+        vb=String(b.number||'').trim();
+        var na=parseFloat(va),nb=parseFloat(vb);
+        if(!isNaN(na)&&!isNaN(nb)){va=na;vb=nb;return sortOrder==='asc'?va-vb:vb-va;}
+      } else if(sortBy==='park'){
+        va=String(a.parking||'').trim();
+        vb=String(b.parking||'').trim();
+        var na=parseFloat(va),nb=parseFloat(vb);
+        if(!isNaN(na)&&!isNaN(nb)){va=na;vb=nb;return sortOrder==='asc'?va-vb:vb-va;}
+      } else if(sortBy==='model'){
+        va=(a.model||'').toUpperCase();
+        vb=(b.model||'').toUpperCase();
+      } else if(sortBy==='cat'){
+        va=(a.cat||'ZZZ').toUpperCase();
+        vb=(b.cat||'ZZZ').toUpperCase();
+      }
+      var cmp=String(va).localeCompare(String(vb),undefined,{numeric:true,sensitivity:'base'});
+      return sortOrder==='asc'?cmp:-cmp;
+    });
+  }
+
+  var priSorted=sorter(pri);
+  var polSorted=sorter(pol);
+
+  var sumbar='<span class="sb-total">Total: '+total+'</span>'+
+    (missing?'<span class="sb-miss"> &nbsp;|&nbsp; Missing Keys: '+missing+'</span>':'')+
+    (pri.length?'<span class="sb-pri"> &nbsp;|&nbsp; PRI: '+pri.length+'</span>':'')+
+    (pol.length?'<span class="sb-pol"> &nbsp;|&nbsp; POL: '+pol.length+'</span>':'');
+
+  function buildTable(priRows,polRows){
+    var COLS=5;
+    var html='<table><thead><tr>'+
+      '<th style="width:30px">#</th>'+
+      '<th style="width:120px">Plate</th>'+
+      '<th style="width:100px">Model</th>'+
+      '<th style="width:120px">Parking</th>'+
+      '<th style="width:100px;text-align:center">Key Status</th>'+
+      '</tr></thead><tbody>';
+    var serial=1;
+    if(priRows.length){
+      html+='<tr><td colspan="'+COLS+'" class="cat-hdr-pri">[PRI] PRI — '+priRows.length+' cars</td></tr>';
+      priRows.forEach(function(e){
+        var keyCell='<span style="display:inline-block;padding:2px 5px;border-radius:6px;font-size:11pt;font-weight:700;background:'+kBg(e.key)+';color:'+kFg(e.key)+';border:1px solid '+kFg(e.key)+'">'+e.key+'</span>';
+        var plateCell='<span class="plate-em">'+e.emirate+'</span><span class="plate-cd">'+(e.code||'')+'</span><span class="plate-nm">'+e.number+'</span>';
+        var parkStr=(e.parking||'-');
+        var modelStr=(e.model||'-').toUpperCase();
+        html+='<tr style="background:#fff">'+
+          '<td style="text-align:center;font-weight:900;border:1.5px solid #000;font-size:12pt">'+serial+'</td>'+
+          '<td style="font-family:Courier New,monospace;font-weight:900;font-size:12pt;border:1.5px solid #000">'+plateCell+'</td>'+
+          '<td style="border:1.5px solid #000;font-size:12pt;font-weight:700">'+modelStr+'</td>'+
+          '<td style="border:1.5px solid #000;font-size:12pt;font-weight:900;white-space:normal;word-break:break-word">'+parkStr+'</td>'+
+          '<td style="text-align:center;border:1.5px solid #000">'+keyCell+'</td>'+
+          '</tr>';
+        serial++;
+      });
+    }
+    if(polRows.length){
+      html+='<tr><td colspan="'+COLS+'" class="cat-hdr-pol">[POL] POL — '+polRows.length+' cars</td></tr>';
+      polRows.forEach(function(e){
+        var isMissing=(e.key==='Missing');
+        var ks='display:inline-block;padding:2px 5px;border-radius:6px;font-size:11pt;font-weight:700;background:'+kBg(e.key)+';color:'+kFg(e.key)+';border:1px solid '+kFg(e.key)+(isMissing?';color:#cc0000;font-weight:900':'');
+        var keyCell='<span style="'+ks+'">'+e.key+'</span>';
+        var plateCell='<span class="plate-em" style="color:#cc0000">'+e.emirate+'</span><span class="plate-cd" style="color:#cc0000">'+(e.code||'')+'</span><span class="plate-nm" style="color:#cc0000">'+e.number+'</span>';
+        var parkStr=(e.parking||'-');
+        var modelStr=(e.model||'-').toUpperCase();
+        html+='<tr style="background:#fff">'+
+          '<td style="text-align:center;font-weight:900;border:1.5px solid #000;font-size:12pt">'+serial+'</td>'+
+          '<td style="font-family:Courier New,monospace;font-weight:900;font-size:12pt;border:1.5px solid #000">'+plateCell+'</td>'+
+          '<td style="border:1.5px solid #000;font-size:12pt;font-weight:700;color:#cc0000">'+modelStr+'</td>'+
+          '<td style="border:1.5px solid #000;font-size:12pt;font-weight:900;white-space:normal;word-break:break-word;color:#cc0000">'+parkStr+'</td>'+
+          '<td style="text-align:center;border:1.5px solid #000">'+keyCell+'</td>'+
+          '</tr>';
+        serial++;
+      });
+    }
+    html+='</tbody></table>';
+    return html;
+  }
+
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>UAQSecurity '+date+' — Sorted by '+sortLabel+'</title>'+
+    '<style>'+
+    '@page{size:A4 portrait;margin:12mm 12mm 20mm 12mm}'+
+    '@page{@bottom-center{content:"Page " counter(page) " of " counter(pages);font-family:Arial,sans-serif;font-size:10pt;color:#000;font-weight:700}}'+
+    '*{box-sizing:border-box}'+
+    'body{font-family:Arial,sans-serif;font-size:12pt;color:#000;margin:0;background:#fff}'+
+    '.top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;padding:4px 0;border-bottom:2px solid #000}'+
+    '.brand{font-size:20px;font-weight:900;color:#000;letter-spacing:3px}'+
+    '.top-meta{font-size:10px;color:#333;letter-spacing:1.5px;margin-top:2px}'+
+    '.sort-tag{font-size:10px;font-weight:700;color:#fff;background:#1a4fc8;border-radius:5px;padding:2px 8px;letter-spacing:1px;display:inline-block;margin-top:3px}'+
+    '.top-right{text-align:right;font-size:9px;color:#555}'+
+    '.sb-row{display:flex;gap:12px;margin-bottom:7px;align-items:baseline}'+
+    '.sb-total{font-size:14px;font-weight:900;color:#000}'+
+    '.sb-pri{font-size:14px;font-weight:900;color:#0a2a8a}'+
+    '.sb-pol{font-size:14px;font-weight:900;color:#cc0000}'+
+    '.sb-miss{font-size:13px;font-weight:700;color:#cc0000}'+
+    'table{width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:12px}'+
+    'th{background:#fff;color:#000;padding:7px 4px;text-align:left;font-size:13pt;letter-spacing:.5px;text-transform:uppercase;border:1.5px solid #000;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:900}'+
+    'td{overflow:hidden;text-overflow:ellipsis;font-size:12pt;padding:3px 4px;line-height:1.3}'+
+    '.cat-hdr-pri{background:#fff;color:#0a2a8a;font-weight:900;font-size:13pt;letter-spacing:1.5px;padding:6px 6px;border:1.5px solid #000}'+
+    '.cat-hdr-pol{background:#fff;color:#cc0000;font-weight:900;font-size:13pt;letter-spacing:1.5px;padding:6px 6px;border:1.5px solid #000}'+
+    '.foot{margin-top:7px;padding:5px 12px;border-radius:4px;background:#fff;color:#000;border:2px solid #000;display:flex;justify-content:space-between;font-size:11px;font-weight:700}'+
+    '.plate-em{display:inline-block;width:42px;font-weight:900}'+
+    '.plate-cd{display:inline-block;width:28px}'+
+    '.plate-nm{display:inline-block;min-width:50px;font-weight:900}'+
+    '.creator{font-size:10px;color:#555;text-align:right;line-height:1.6;margin-top:8px}.creator span{display:block;font-size:13px;font-weight:900;color:#000;letter-spacing:2px;text-transform:uppercase}'+
+    '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'+
+    '</style></head><body>'+
+    '<div class="top">'+
+      '<div>'+
+        '<div class="brand">UAQSECURITY</div>'+
+        '<div class="top-meta">DIGITAL PARKING TRACKER</div>'+
+        '<span class="sort-tag">Sorted by: '+sortLabel+' &mdash; '+orderLabel+'</span>'+
+      '</div>'+
+      '<div class="top-right">'+
+        '<strong>'+fmtDate+'</strong><br>Printed: '+new Date().toLocaleString()+
+      '</div>'+
+    '</div>'+
+    '<div class="sb-row">'+sumbar+'</div>'+
+    buildTable(priSorted,polSorted)+
+    '<div class="foot"><div>UAQSecurity — Confidential &nbsp;|&nbsp; PRI: '+pri.length+' &nbsp; POL: '+pol.length+' &nbsp; Total: '+total+' &nbsp;|&nbsp; Sorted by: '+sortLabel+' ('+orderLabel+')</div></div>'+
+    '<div class="creator">Created by<span>Raja Farrakh Ayyaz</span></div>'+
+    '</body></html>';
+}
+
+
+/* ── EXPORT DATA FILE ── */
+function exportDataFile(){
+  var date=document.getElementById('printDate').value||todayStr();
+  var list=getByDate(date);
+  if(!list.length){showToast('No entries for this date','err');return;}
+  var payload={
+    version:1,
+    appName:'UAQSecurity Digital Parking Tracker',
+    exportedBy:'Raja Farrakh Ayyaz',
+    exportedAt:new Date().toISOString(),
+    date:date,
+    totalEntries:list.length,
+    entries:list
+  };
+  var json=JSON.stringify(payload,null,2);
+  var blob=new Blob([json],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='UAQPark_'+date+'.uaqpark';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1000);
+  showToast('Exported UAQPark_'+date+'.uaqpark','ok');
+}
+
+/* ── IMPORT DATA FILE ── */
+var _importedData=null;
+function handleImportFile(input){
+  if(!input.files||!input.files[0])return;
+  readImportFile(input.files[0]);
+}
+function handleImportDrop(e){
+  e.preventDefault();
+  document.getElementById('importDropZone').style.borderColor='var(--border2)';
+  var file=e.dataTransfer.files&&e.dataTransfer.files[0];
+  if(!file){showToast('No file dropped','err');return;}
+  readImportFile(file);
+}
+function readImportFile(file){
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      var data=JSON.parse(ev.target.result);
+      if(!data.entries||!Array.isArray(data.entries)||!data.date)
+        throw new Error('Invalid file');
+      _importedData=data;
+      var pri=data.entries.filter(function(e){return e.cat==='PRI';}).length;
+      var pol=data.entries.filter(function(e){return e.cat==='POL';}).length;
+      var miss=data.entries.filter(function(e){return e.key==='Missing';}).length;
+      document.getElementById('importFileName').textContent='📄 '+file.name;
+      document.getElementById('importFileMeta').innerHTML=
+        'Date: <strong>'+data.date+'</strong> &nbsp;|&nbsp; '+
+        'Total: <strong>'+data.entries.length+'</strong> &nbsp;|&nbsp; '+
+        'PRI: <strong>'+pri+'</strong> &nbsp;|&nbsp; '+
+        'POL: <strong>'+pol+'</strong>'+
+        (miss?' &nbsp;|&nbsp; <span style="color:#cc0000;font-weight:700">Missing: '+miss+'</span>':'');
+      document.getElementById('importPreview').style.display='block';
+      showToast('File loaded — choose sort & reprint','ok');
+    }catch(err){
+      showToast('Invalid .uaqpark file','err');
+      _importedData=null;
+      document.getElementById('importPreview').style.display='none';
+    }
+  };
+  reader.readAsText(file);
+}
+function clearImport(){
+  _importedData=null;
+  document.getElementById('importPreview').style.display='none';
+  document.getElementById('importFileInput').value='';
+  showToast('Import cleared','');
+}
+
+/* ── IMPORT SORT MODAL ── */
+var _iSortBy='car',_iSortOrder='asc';
+function selectISort(v){
+  _iSortBy=v;
+  ['car','park','model','cat'].forEach(function(k){
+    var el=document.getElementById('isb_'+k);
+    if(el)el.className='sort-opt'+(k===v?' sort-active':'');
+  });
+}
+function selectIOrder(v){
+  _iSortOrder=v;
+  ['asc','desc'].forEach(function(k){
+    var el=document.getElementById('iob_'+k);
+    if(el)el.className='sort-opt'+(k===v?' sort-active':'');
+  });
+}
+function openImportSortPrint(){
+  if(!_importedData){showToast('No file imported','err');return;}
+  var m=document.getElementById('importSortModal');
+  document.getElementById('isp_filelabel').textContent='File: UAQPark_'+_importedData.date+'.uaqpark';
+  document.getElementById('isp_metalabel').textContent=
+    _importedData.entries.length+' entries — Date: '+_importedData.date;
+  selectISort(_iSortBy);selectIOrder(_iSortOrder);
+  m.style.display='flex';
+}
+function closeImportSortPrint(){
+  document.getElementById('importSortModal').style.display='none';
+}
+function execImportSortPrint(){
+  closeImportSortPrint();
+  if(!_importedData){showToast('No data to print','err');return;}
+  var html=buildSortedPrintHTML(_importedData.date,_iSortBy,_iSortOrder,_importedData.entries);
+  if(!html){showToast('No entries in file','err');return;}
+  var win=window.open('','_blank');
+  if(win){
+    win.document.write(html);win.document.close();win.focus();
+    setTimeout(function(){win.print();},700);
+    showToast('Reprint dialog opening...','ok');
+  } else {
+    var blob=new Blob([html],{type:'text/html'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');a.href=url;a.target='_blank';
+    document.body.appendChild(a);a.click();
+    setTimeout(function(){URL.revokeObjectURL(url);a.remove();},2000);
+    showToast('Opened in browser — use Print menu','warn');
+  }
 }
 
 /* DATA */
