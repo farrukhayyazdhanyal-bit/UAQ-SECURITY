@@ -11,15 +11,15 @@
 <style>
 
 :root{
-  --bg:#0b0d13;
-  --grad-main: linear-gradient(135deg, #0d121f 0%, #151c33 100%);
-  --grad-card: linear-gradient(145deg, rgba(26,35,58,0.7) 0%, rgba(18,24,41,0.8) 100%);
-  --grad-accent: linear-gradient(90deg, #3a9de8 0%, #6875f5 100%);
-  --bg2:#141b2e;--bg3:#1b243d;--bg4:#243052;
-  --border:rgba(58,157,232,0.15);--border2:rgba(58,157,232,0.3);
-  --text:#f0f5ff;--text2:#b2c5e0;--text3:#748ba8;
-  --accent:#3a9de8;--accent2:#5eb8ff;
-  --green:#10b981;--yellow:#f59e0b;--red:#ef4444;--purple:#8b5cf6;
+  --bg:#070a12;
+  --grad-main: linear-gradient(160deg, #070a12 0%, #0c1220 50%, #0a1128 100%);
+  --grad-card: linear-gradient(145deg, rgba(20,30,55,0.75) 0%, rgba(12,18,38,0.85) 100%);
+  --grad-accent: linear-gradient(90deg, #00b4ff 0%, #0ea5e9 45%, #38bdf8 100%);
+  --bg2:#0e1526;--bg3:#131d35;--bg4:#1a2645;
+  --border:rgba(0,180,255,0.13);--border2:rgba(0,180,255,0.28);
+  --text:#eef4ff;--text2:#a8c4e0;--text3:#5c7a9a;
+  --accent:#00b4ff;--accent2:#38d2ff;
+  --green:#00d68f;--yellow:#ffb300;--red:#ff4455;--purple:#a78bfa;
   --tab-h:62px;--fs:16px;--rad:14px;--rad2:8px;
 }
 
@@ -222,13 +222,10 @@ body.day .plate-panel{background:linear-gradient(135deg,#c0e8c8,#cceedd);border-
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 .print-note{background:rgba(255,200,0,.08);border:1.5px solid rgba(255,200,0,.3);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--yellow);line-height:1.7}
-body.sc-green{--accent:#22ff88;--accent2:#16a34a}
-body.sc-purple{--accent:#c084fc;--accent2:#9333ea}
-body.sc-orange{--accent:#fb923c;--accent2:#ea580c}
-body.sc-red{--accent:#f87171;--accent2:#dc2626}
-body.sc-gold{--accent:#ffe048;--accent2:#ca8a04}
-body.sc-teal{--accent:#2dd4bf;--accent2:#0d9488}
-body.sc-pink{--accent:#f472b6;--accent2:#db2777}
+body.sc-blue{--accent:#00b4ff;--accent2:#38d2ff}
+body.sc-emerald{--accent:#00e5a0;--accent2:#00c980}
+body.sc-violet{--accent:#b06aff;--accent2:#8b40f0}
+body.sc-amber{--accent:#ffb300;--accent2:#e09600}
 
 .sort-opt{padding:10px 8px;border-radius:10px;border:1.5px solid var(--border2);background:var(--bg3);color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;text-align:center;letter-spacing:.5px;width:100%}
 .sort-opt:active{transform:scale(.95)}
@@ -349,31 +346,26 @@ body.sc-pink{--accent:#f472b6;--accent2:#db2777}
   <div class="section">
     <div class="sec-hdr">&#9889; Export Actions</div>
     <div class="action-grid">
-      <button class="btn-action axl" onclick="exportXLSX()">
+      <button class="btn-action axl" onclick="openExportSort('xlsx')">
         <div class="btn-action-icon">&#128202;</div>
-        <div class="btn-action-text"><strong>Export to Excel (.xlsx)</strong><span>Opens in Google Sheets / WPS Office</span></div>
+        <div class="btn-action-text"><strong>Export to Excel (.xlsx)</strong><span>Choose sort order before export</span></div>
       </button>
-      <button class="btn-action acp" onclick="copyToClipboard()">
+      <button class="btn-action acp" onclick="openExportSort('clipboard')">
         <div class="btn-action-icon">&#128203;</div>
-        <div class="btn-action-text"><strong>Copy to Clipboard</strong><span>Formatted text report</span></div>
+        <div class="btn-action-text"><strong>Copy to Clipboard</strong><span>Choose sort order before copy</span></div>
       </button>
-      <button class="btn-action awa" onclick="shareViaWhatsApp()">
+      <button class="btn-action awa" onclick="openExportSort('whatsapp')">
         <div class="btn-action-icon">&#128172;</div>
-        <div class="btn-action-text"><strong>Share via WhatsApp / App</strong><span>Native share or WhatsApp web</span></div>
+        <div class="btn-action-text"><strong>Share via WhatsApp / App</strong><span>Choose sort order before share</span></div>
+      </button>
+      <button class="btn-action adl" onclick="openExportSort('html')" style="border-color:rgba(91,33,182,.4)">
+        <div class="btn-action-icon" style="background:rgba(91,33,182,.12)">&#128196;</div>
+        <div class="btn-action-text"><strong>Export HTML Report</strong><span>Choose sort order before download</span></div>
       </button>
     </div>
-  </div>
-  <div class="section">
-    <div class="sec-hdr">&#128272; Change PIN</div>
-    <div class="sec-body">
-      <div style="font-size:12px;color:var(--text2);line-height:1.6">Change the 4-digit PIN used to unlock the app.</div>
-      <div><label>Current PIN</label><input type="password" id="cp_cur" maxlength="4" inputmode="numeric" placeholder="&#8226;&#8226;&#8226;&#8226;"></div>
-      <div><label>New PIN (4 digits)</label><input type="password" id="cp_new" maxlength="4" inputmode="numeric" placeholder="&#8226;&#8226;&#8226;&#8226;"></div>
-      <div><label>Confirm New PIN</label><input type="password" id="cp_con" maxlength="4" inputmode="numeric" placeholder="&#8226;&#8226;&#8226;&#8226;"></div>
-      <button class="btn-primary" style="background:linear-gradient(135deg,#6d28d9,#a855f7);box-shadow:0 4px 22px rgba(168,85,247,.4)" onclick="changePin()">&#128272; CHANGE PIN</button>
-    </div>
-  </div>
 </div>
+
+</div><!-- end panel-export -->
 
 <div class="tab-panel" id="panel-print">
   <div class="section" style="margin-top:10px">
@@ -387,41 +379,38 @@ body.sc-pink{--accent:#f472b6;--accent2:#db2777}
         <div class="prev-card"><div class="prev-num" id="pvTotal" style="color:var(--accent)">&#8212;</div><div class="prev-lbl">Total Cars</div></div>
         <div class="prev-card"><div class="prev-num" id="pvMissing" style="color:var(--red)">&#8212;</div><div class="prev-lbl">Missing Keys</div></div>
       </div>
-      <button class="btn-primary" style="background:linear-gradient(135deg,#16a34a,#22ff88);box-shadow:0 4px 22px rgba(34,255,136,.4)" onclick="printLog()">&#128424; PRINT / SAVE AS PDF</button>
-      <button class="btn-primary" style="background:linear-gradient(135deg,#1a4fc8,#5b21b6);box-shadow:0 4px 22px rgba(91,33,182,.45);margin-top:0" onclick="openSortPrint()">&#127381; SORT &amp; PRINT</button>
-      <button class="btn-action adl" style="width:100%" onclick="downloadHTMLReport()">
-        <div class="btn-action-icon">&#128196;</div>
-        <div class="btn-action-text"><strong>Download HTML Report</strong><span>Open in Chrome then Print to PDF</span></div>
-      </button>
+      <button class="btn-primary" style="background:linear-gradient(135deg,#1a4fc8,#5b21b6);box-shadow:0 4px 22px rgba(91,33,182,.45)" onclick="openSortPrint()">&#127381; SET SORT ORDER &amp; PRINT</button>
+      <!-- Current sort badge shown after sort is set -->
+      <div id="printSortBadge" style="display:none;text-align:center;padding:7px 0 2px">
+        <span id="printSortLabel" style="font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--accent);background:rgba(34,211,255,.1);border:1px solid rgba(34,211,255,.3);border-radius:20px;padding:4px 14px"></span>
+      </div>
+      <button id="printGoBtn" style="display:none;width:100%;padding:15px;background:linear-gradient(135deg,#16a34a,#22ff88);color:#000;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;border:none;border-radius:11px;cursor:pointer;box-shadow:0 4px 22px rgba(34,255,136,.4)" onclick="doPrint()">&#128424; PRINT / SAVE AS PDF</button>
     </div>
   </div>
-  <div class="section">
-    <div class="sec-hdr">&#8505; Print Includes</div>
-    <div class="sec-body" style="font-size:12px;color:var(--text2);line-height:1.9;gap:3px">
-      <div>&#8226; Full table &#8212; all vehicles for selected day</div>
-      <div>&#8226; &#129001; PRI section, &#128997; POL section</div>
-      <div>&#8226; Summary bar &amp; Missing Keys count</div>
-      <div>&#8226; Signature &amp; stamp line</div>
-      <div>&#8226; Created by: Raja Farrakh Ayyaz</div>
-    </div>
-  </div>
+
+
+</div><!-- end panel-print -->
+
+<!-- ═══════════ IMPORT TAB PANEL ═══════════ -->
+<div class="tab-panel" id="panel-import">
 
   <div class="section" style="margin-top:10px">
-    <div class="sec-hdr">&#128229; Import &amp; Reprint</div>
+    <div class="sec-hdr">&#128228; Export Data File</div>
     <div class="sec-body">
       <div class="print-note" style="border-color:rgba(91,33,182,.5);background:rgba(91,33,182,.08)">
-        <strong>&#128196; How it works:</strong> Export a <code>.uaqpark</code> data file from any date below, share it, then import it here on any device to reprint in a different sort order.
+        <strong>&#128196; How it works:</strong> Export a <code>.uaqpark</code> file from any date, share it, then import it on any device to reprint or inject data into storage.
       </div>
-
-      <!-- EXPORT BLOCK -->
-      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Step 1 — Export Data File</div>
-      <button class="btn-action adl" style="width:100%" onclick="exportDataFile()">
+      <div><label>Date to Export</label><input type="date" id="importTabExportDate"></div>
+      <button class="btn-action adl" style="width:100%" onclick="exportDataFileFromImportTab()">
         <div class="btn-action-icon">&#128228;</div>
         <div class="btn-action-text"><strong>Export .uaqpark File</strong><span>Saves selected date as a shareable data file</span></div>
       </button>
+    </div>
+  </div>
 
-      <!-- IMPORT BLOCK -->
-      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin:14px 0 6px">Step 2 — Import &amp; Reprint</div>
+  <div class="section">
+    <div class="sec-hdr">&#128229; Import .uaqpark File</div>
+    <div class="sec-body">
       <label id="importDropZone" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:2px dashed var(--border2);border-radius:12px;padding:18px 12px;cursor:pointer;transition:border-color .2s;background:var(--bg3)" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="this.style.borderColor='var(--border2)'" ondrop="handleImportDrop(event)">
         <span style="font-size:28px">&#128229;</span>
         <span style="font-size:13px;font-weight:700;color:var(--text2)">Tap to choose or drag &amp; drop</span>
@@ -430,12 +419,48 @@ body.sc-pink{--accent:#f472b6;--accent2:#db2777}
       </label>
       <div id="importPreview" style="display:none;margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--border2)">
         <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px" id="importFileName"></div>
-        <div style="font-size:12px;color:var(--text2)" id="importFileMeta"></div>
-        <button onclick="openImportSortPrint()" style="margin-top:10px;width:100%;padding:11px;border-radius:10px;border:none;background:linear-gradient(135deg,#1a4fc8,#5b21b6);color:#fff;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px">&#127381; CHOOSE SORT &amp; REPRINT</button>
-        <button onclick="clearImport()" style="margin-top:7px;width:100%;padding:8px;border-radius:10px;border:1.5px solid var(--border2);background:transparent;color:var(--text3);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer">&#10006; Clear</button>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px" id="importFileMeta"></div>
+        <button onclick="openImportSortPrint()" style="width:100%;padding:11px;border-radius:10px;border:none;background:linear-gradient(135deg,#1a4fc8,#5b21b6);color:#fff;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px;margin-bottom:7px">&#127381; CHOOSE SORT &amp; REPRINT</button>
+        <button onclick="injectImportedData()" style="width:100%;padding:11px;border-radius:10px;border:none;background:linear-gradient(135deg,#047857,#10b981);color:#fff;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px;margin-bottom:7px">&#128229; INJECT INTO STORAGE</button>
+        <button onclick="clearImport()" style="width:100%;padding:8px;border-radius:10px;border:1.5px solid var(--border2);background:transparent;color:var(--text3);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer">&#10006; Clear</button>
       </div>
     </div>
   </div>
+
+  <!-- Inject Log -->
+  <div class="section" id="injectLogSection" style="display:none">
+    <div class="sec-hdr">&#128203; Inject Log</div>
+    <div class="sec-body" id="injectLogBody" style="font-size:12px;color:var(--text2);line-height:1.8;gap:4px"></div>
+  </div>
+
+</div><!-- end panel-import -->
+
+<!-- Export Sort Modal -->
+<div id="exportSortModal" style="display:none;position:fixed;inset:0;z-index:8200;background:rgba(0,0,0,.78);align-items:center;justify-content:center">
+  <div style="background:var(--bg2);border:1.5px solid var(--border2);border-radius:18px;padding:24px 22px;width:92%;max-width:380px;box-shadow:0 8px 40px rgba(0,0,0,.7)">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:700;letter-spacing:2px;color:var(--accent);margin-bottom:2px;text-transform:uppercase" id="exportSortTitle">&#127381; Sort &amp; Export</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:16px" id="exportSortSubtitle">Choose sort order</div>
+
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--text2);text-transform:uppercase;margin-bottom:8px">Sort By</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px">
+      <button onclick="selectExSort('car')"   id="exsb_car"   class="sort-opt sort-active">&#128663; Car Number</button>
+      <button onclick="selectExSort('park')"  id="exsb_park"  class="sort-opt">&#128273; Parking No.</button>
+      <button onclick="selectExSort('model')" id="exsb_model" class="sort-opt">&#128664; Model</button>
+      <button onclick="selectExSort('cat')"   id="exsb_cat"   class="sort-opt">&#127384; Category</button>
+    </div>
+
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--text2);text-transform:uppercase;margin-bottom:8px">Order</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:22px">
+      <button onclick="selectExOrder('asc')"  id="exob_asc"   class="sort-opt sort-active">&#8679; Ascending</button>
+      <button onclick="selectExOrder('desc')" id="exob_desc"  class="sort-opt">&#8681; Descending</button>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button onclick="closeExportSort()" style="flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--border2);background:transparent;color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;cursor:pointer">Cancel</button>
+      <button onclick="execExportSort()" style="flex:2;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#0ea5e9,#22d3ff);color:#000;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px" id="exportSortGoBtn">&#128228; EXPORT</button>
+    </div>
+  </div>
+</div>
 
 <!-- Import Sort-Print Modal -->
 <div id="importSortModal" style="display:none;position:fixed;inset:0;z-index:8100;background:rgba(0,0,0,.78);align-items:center;justify-content:center">
@@ -491,13 +516,13 @@ body.sc-pink{--accent:#f472b6;--accent2:#db2777}
     </div>
   </div>
 </div>
-</div>
 </div><!-- /main -->
 <nav class="tab-bar">
   <button class="tab-btn active" onclick="switchTab('add',this)"><span class="tab-icon">&#10133;</span>Add</button>
   <button class="tab-btn" onclick="switchTab('view',this)"><span class="tab-icon">&#128203;</span>View</button>
   <button class="tab-btn" onclick="switchTab('export',this)"><span class="tab-icon">&#128228;</span>Export</button>
   <button class="tab-btn" onclick="switchTab('print',this)"><span class="tab-icon">&#128424;</span>Print</button>
+  <button class="tab-btn" onclick="switchTab('import',this)"><span class="tab-icon">&#128229;</span>Import</button>
 </nav>
 <div class="app-footer">
   <div class="footer-by">Created by</div>
@@ -525,15 +550,11 @@ body.sc-pink{--accent:#f472b6;--accent2:#db2777}
 
     <div class="ssec">
       <div class="ssec-title">&#127912; Color Scheme</div>
-      <div class="scheme-grid">
-        <div class="sc-dot active" id="dot-blue" style="background:linear-gradient(135deg,#0ea5e9,#22d3ff)" onclick="setScheme('blue')">&#10003;</div>
-        <div class="sc-dot" id="dot-green" style="background:linear-gradient(135deg,#16a34a,#22ff88)" onclick="setScheme('green')"></div>
-        <div class="sc-dot" id="dot-purple" style="background:linear-gradient(135deg,#9333ea,#c084fc)" onclick="setScheme('purple')"></div>
-        <div class="sc-dot" id="dot-orange" style="background:linear-gradient(135deg,#ea580c,#fb923c)" onclick="setScheme('orange')"></div>
-        <div class="sc-dot" id="dot-red" style="background:linear-gradient(135deg,#dc2626,#f87171)" onclick="setScheme('red')"></div>
-        <div class="sc-dot" id="dot-gold" style="background:linear-gradient(135deg,#ca8a04,#ffe048)" onclick="setScheme('gold')"></div>
-        <div class="sc-dot" id="dot-teal" style="background:linear-gradient(135deg,#0d9488,#2dd4bf)" onclick="setScheme('teal')"></div>
-        <div class="sc-dot" id="dot-pink" style="background:linear-gradient(135deg,#db2777,#f472b6)" onclick="setScheme('pink')"></div>
+      <div class="scheme-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="sc-dot active" id="dot-blue"    style="background:linear-gradient(135deg,#007acc,#00b4ff)" onclick="setScheme('blue')" title="Ocean Blue">&#10003;</div>
+        <div class="sc-dot" id="dot-emerald" style="background:linear-gradient(135deg,#00a86b,#00e5a0)" onclick="setScheme('emerald')" title="Emerald"></div>
+        <div class="sc-dot" id="dot-violet"  style="background:linear-gradient(135deg,#6a20cc,#b06aff)" onclick="setScheme('violet')"  title="Violet"></div>
+        <div class="sc-dot" id="dot-amber"   style="background:linear-gradient(135deg,#b07800,#ffb300)" onclick="setScheme('amber')"   title="Amber"></div>
       </div>
     </div>
     <div class="ssec">
@@ -577,6 +598,14 @@ body.sc-pink{--accent:#f472b6;--accent2:#db2777}
       </div>
     </div>
     <div class="ssec">
+      <div class="ssec-title">&#128272; Change PIN</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:10px">Change the 4-digit PIN used to unlock the app.</div>
+      <div style="margin-bottom:8px"><label>Current PIN</label><input type="password" id="cp_cur" maxlength="4" inputmode="numeric" placeholder="&#8226;&#8226;&#8226;&#8226;"></div>
+      <div style="margin-bottom:8px"><label>New PIN (4 digits)</label><input type="password" id="cp_new" maxlength="4" inputmode="numeric" placeholder="&#8226;&#8226;&#8226;&#8226;"></div>
+      <div style="margin-bottom:10px"><label>Confirm New PIN</label><input type="password" id="cp_con" maxlength="4" inputmode="numeric" placeholder="&#8226;&#8226;&#8226;&#8226;"></div>
+      <button class="btn-primary" style="background:linear-gradient(135deg,#6d28d9,#a855f7);box-shadow:0 4px 22px rgba(168,85,247,.4)" onclick="changePin()">&#128272; CHANGE PIN</button>
+    </div>
+    <div class="ssec">
       <div class="ssec-title">&#9888; Data Management</div>
       <button class="btn-action" style="border-color:rgba(255,59,59,.4);width:100%" onclick="clearAllData()">
         <div class="btn-action-icon" style="background:rgba(255,59,59,.15)">&#128465;</div>
@@ -603,7 +632,14 @@ var S_EN='uaq_entries',S_PIN='uaq_pin',S_LOCK='uaq_lock_until',S_CFG='uaq_cfg';
 var entries=[],flashOn=false,flashStream=null,camStream=null,camFace='environment';
 
 /* SETTINGS */
-function getCfg(){try{return Object.assign({mode:'night',fs:'normal',scheme:'blue'},JSON.parse(localStorage.getItem(S_CFG)||'{}'));}catch(e){return{mode:'night',fs:'normal',scheme:'blue'};}}
+var VALID_SCHEMES=['blue','emerald','violet','amber'];
+function getCfg(){
+  try{
+    var c=Object.assign({mode:'night',fs:'normal',scheme:'blue'},JSON.parse(localStorage.getItem(S_CFG)||'{}'));
+    if(VALID_SCHEMES.indexOf(c.scheme)<0)c.scheme='blue';
+    return c;
+  }catch(e){return{mode:'night',fs:'normal',scheme:'blue'};}
+}
 function saveCfg(c){localStorage.setItem(S_CFG,JSON.stringify(c));}
 function applyCfg(c){
   var b=document.body;
@@ -786,7 +822,7 @@ window.addEventListener('DOMContentLoaded',function(){
   } else {
     if(!localStorage.getItem(S_PIN)){
       document.getElementById('pinLbl').textContent='Default PIN: 1234';
-      document.getElementById('pinHint').textContent='Change it in Export tab';
+      document.getElementById('pinHint').textContent='Change it in Settings';
     }
     checkLockout();
   }
@@ -1057,6 +1093,11 @@ function updateExportCount(){
 }
 function updatePrintPreview(){
   var d=document.getElementById('printDate').value;
+  /* Hide print button — user must confirm sort for new date */
+  var btn=document.getElementById('printGoBtn');
+  var badge=document.getElementById('printSortBadge');
+  if(btn)btn.style.display='none';
+  if(badge)badge.style.display='none';
   if(!d){['pvTotal','pvMissing'].forEach(function(id){document.getElementById(id).textContent='-';});return;}
   var l=getByDate(d);
   document.getElementById('pvTotal').textContent=l.length||'0';
@@ -1219,15 +1260,10 @@ function buildPrintHTML(date){
     return html;
   }
 
-  /* Sort each category by car number (numeric, ascending) */
+  /* Sort each category by car number — natural sort (handles numeric and alphanumeric) */
   function sortByNumber(arr){
     return arr.slice().sort(function(a,b){
-      var sa=String(a.number||'').trim();
-      var sb=String(b.number||'').trim();
-      var na=parseFloat(sa);
-      var nb=parseFloat(sb);
-      if(!isNaN(na)&&!isNaN(nb))return na-nb;
-      return sa.localeCompare(sb,undefined,{numeric:true,sensitivity:'base'});
+      return _naturalCmp(String(a.number||'').trim(),String(b.number||'').trim());
     });
   }
   var priSorted=sortByNumber(pri);
@@ -1393,6 +1429,17 @@ function closeSortPrint(){
 }
 function execSortPrint(){
   closeSortPrint();
+  var sortLabels={car:'Car Number',park:'Parking No.',model:'Model',cat:'Category'};
+  var orderLabel=_sortOrder==='asc'?'Asc':'Desc';
+  var badge=document.getElementById('printSortBadge');
+  var lbl=document.getElementById('printSortLabel');
+  var btn=document.getElementById('printGoBtn');
+  if(lbl)lbl.textContent='Sort: '+(sortLabels[_sortBy]||_sortBy)+' — '+orderLabel;
+  if(badge)badge.style.display='block';
+  if(btn)btn.style.display='block';
+  showToast('Sort set — tap PRINT to continue','ok');
+}
+function doPrint(){
   var date=document.getElementById('printDate').value||todayStr();
   var html=buildSortedPrintHTML(date,_sortBy,_sortOrder);
   if(!html){showToast('No entries for this date','err');return;}
@@ -1400,14 +1447,14 @@ function execSortPrint(){
   if(win){
     win.document.write(html);win.document.close();win.focus();
     setTimeout(function(){win.print();},700);
-    showToast('Sort & Print dialog opening...','ok');
+    showToast('Print dialog opening...','ok');
   } else {
     var blob=new Blob([html],{type:'text/html'});
     var url=URL.createObjectURL(blob);
     var a=document.createElement('a');a.href=url;a.target='_blank';
     document.body.appendChild(a);a.click();
     setTimeout(function(){URL.revokeObjectURL(url);a.remove();},2000);
-    showToast('Opened in browser - use Print menu','warn');
+    showToast('Opened in browser — use Print menu','warn');
   }
 }
 function buildSortedPrintHTML(date,sortBy,sortOrder,overrideEntries){
@@ -1429,27 +1476,37 @@ function buildSortedPrintHTML(date,sortBy,sortOrder,overrideEntries){
   var sortLabel=sortLabels[sortBy]||sortBy;
   var orderLabel=sortOrder==='asc'?'Ascending':'Descending';
 
+  function getSortKey(e,by){
+    if(by==='car')  return String(e.number||'').trim();
+    if(by==='park') return String(e.parking||'').trim();
+    if(by==='model')return String(e.model||'').toUpperCase().trim();
+    if(by==='cat')  return String(e.cat||'').toUpperCase().trim();
+    return String(e.serial||0);
+  }
+  function naturalCmp(a,b){
+    var re=/(\d+)|(\D+)/g;
+    var ta=String(a).match(re)||[];
+    var tb=String(b).match(re)||[];
+    var len=Math.max(ta.length,tb.length);
+    for(var i=0;i<len;i++){
+      if(i>=ta.length)return -1;
+      if(i>=tb.length)return 1;
+      var ca=ta[i],cb=tb[i];
+      var isNumA=/^\d+$/.test(ca),isNumB=/^\d+$/.test(cb);
+      if(isNumA&&isNumB){
+        var na=parseInt(ca,10),nb=parseInt(cb,10);
+        if(na!==nb)return na-nb;
+      } else {
+        var c=ca.localeCompare(cb,undefined,{sensitivity:'base'});
+        if(c!==0)return c;
+      }
+    }
+    return 0;
+  }
   function sorter(arr){
     return arr.slice().sort(function(a,b){
-      var va,vb;
-      if(sortBy==='car'){
-        va=String(a.number||'').trim();
-        vb=String(b.number||'').trim();
-        var na=parseFloat(va),nb=parseFloat(vb);
-        if(!isNaN(na)&&!isNaN(nb)){va=na;vb=nb;return sortOrder==='asc'?va-vb:vb-va;}
-      } else if(sortBy==='park'){
-        va=String(a.parking||'').trim();
-        vb=String(b.parking||'').trim();
-        var na=parseFloat(va),nb=parseFloat(vb);
-        if(!isNaN(na)&&!isNaN(nb)){va=na;vb=nb;return sortOrder==='asc'?va-vb:vb-va;}
-      } else if(sortBy==='model'){
-        va=(a.model||'').toUpperCase();
-        vb=(b.model||'').toUpperCase();
-      } else if(sortBy==='cat'){
-        va=(a.cat||'ZZZ').toUpperCase();
-        vb=(b.cat||'ZZZ').toUpperCase();
-      }
-      var cmp=String(va).localeCompare(String(vb),undefined,{numeric:true,sensitivity:'base'});
+      var ka=getSortKey(a,sortBy),kb=getSortKey(b,sortBy);
+      var cmp=naturalCmp(ka,kb);
       return sortOrder==='asc'?cmp:-cmp;
     });
   }
@@ -1558,7 +1615,173 @@ function buildSortedPrintHTML(date,sortBy,sortOrder,overrideEntries){
 }
 
 
-/* ── EXPORT DATA FILE ── */
+/* ── EXPORT SORT ── */
+var _exSortBy='car',_exSortOrder='asc',_exTarget='';
+function openExportSort(target){
+  var date=document.getElementById('exportDate').value;
+  if(!date){showToast('Pick a date first','err');return;}
+  var n=getByDate(date).length;
+  if(!n){showToast('No entries for this date','err');return;}
+  _exTarget=target;
+  var labels={xlsx:'Sort & Export Excel',clipboard:'Sort & Copy to Clipboard',whatsapp:'Sort & Share WhatsApp',html:'Sort & Download HTML'};
+  var btnLabels={xlsx:'&#128228; EXPORT EXCEL',clipboard:'&#128203; COPY',whatsapp:'&#128172; SHARE',html:'&#128196; DOWNLOAD HTML'};
+  document.getElementById('exportSortTitle').innerHTML='&#127381; '+(labels[target]||'Sort & Export');
+  document.getElementById('exportSortSubtitle').textContent=n+' entries for '+date;
+  document.getElementById('exportSortGoBtn').innerHTML=btnLabels[target]||'&#128228; EXPORT';
+  selectExSort(_exSortBy);selectExOrder(_exSortOrder);
+  document.getElementById('exportSortModal').style.display='flex';
+}
+function closeExportSort(){document.getElementById('exportSortModal').style.display='none';}
+function selectExSort(v){
+  _exSortBy=v;
+  ['car','park','model','cat'].forEach(function(k){
+    var el=document.getElementById('exsb_'+k);
+    if(el)el.className='sort-opt'+(k===v?' sort-active':'');
+  });
+}
+function selectExOrder(v){
+  _exSortOrder=v;
+  ['asc','desc'].forEach(function(k){
+    var el=document.getElementById('exob_'+k);
+    if(el)el.className='sort-opt'+(k===v?' sort-active':'');
+  });
+}
+function _naturalCmp(a,b){
+  /* Split into numeric and non-numeric tokens, compare numerically when both are digits */
+  var re=/(\d+)|(\D+)/g;
+  var ta=String(a).match(re)||[];
+  var tb=String(b).match(re)||[];
+  var len=Math.max(ta.length,tb.length);
+  for(var i=0;i<len;i++){
+    if(i>=ta.length)return -1;
+    if(i>=tb.length)return 1;
+    var ca=ta[i],cb=tb[i];
+    var isNumA=/^\d+$/.test(ca),isNumB=/^\d+$/.test(cb);
+    if(isNumA&&isNumB){
+      var na=parseInt(ca,10),nb=parseInt(cb,10);
+      if(na!==nb)return na-nb;
+    } else {
+      var c=ca.localeCompare(cb,undefined,{sensitivity:'base'});
+      if(c!==0)return c;
+    }
+  }
+  return 0;
+}
+function _getSortKey(e,by){
+  if(by==='car')  return String(e.number||'').trim();
+  if(by==='park') return String(e.parking||'').trim();
+  if(by==='model')return String(e.model||'').toUpperCase().trim();
+  if(by==='cat')  return String(e.cat||'').toUpperCase().trim();
+  return String(e.serial||0);
+}
+function sortedExportList(date){
+  var list=getByDate(date);
+  return list.slice().sort(function(a,b){
+    var ka=_getSortKey(a,_exSortBy),kb=_getSortKey(b,_exSortBy);
+    var cmp=_naturalCmp(ka,kb);
+    return _exSortOrder==='asc'?cmp:-cmp;
+  });
+}
+function execExportSort(){
+  closeExportSort();
+  var date=document.getElementById('exportDate').value||todayStr();
+  if(_exTarget==='xlsx')exportXLSXSorted(date);
+  else if(_exTarget==='clipboard')copyToClipboardSorted(date);
+  else if(_exTarget==='whatsapp')shareViaWhatsAppSorted(date);
+  else if(_exTarget==='html')downloadHTMLReportSorted(date);
+}
+function exportXLSXSorted(date){
+  var list=sortedExportList(date);
+  if(!list.length){showToast('No entries for this date','err');return;}
+  var headers=['#','Date','Time','Emirate','Code','Number','Full Plate','Vehicle Model','Parking No.','Key Status','Category'];
+  var rows=list.map(function(e,i){
+    var dt=e.datetime?new Date(e.datetime):null;
+    return[i+1,dt?dt.toLocaleDateString('en-GB'):'',dt?dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'',
+      e.emirate,e.code||'',e.number,(e.emirate+' '+(e.code||'')+' '+e.number).trim(),e.model||'',e.parking||'',e.key,e.cat||''];
+  });
+  var xl=XL.build(headers,rows,'Log '+date);
+  var files=[{name:'[Content_Types].xml',data:xl.ct},{name:'_rels/.rels',data:xl.aR},
+    {name:'xl/workbook.xml',data:xl.wb},{name:'xl/_rels/workbook.xml.rels',data:xl.wbR},
+    {name:'xl/sharedStrings.xml',data:xl.sst},{name:'xl/styles.xml',data:xl.styles},
+    {name:'xl/worksheets/sheet1.xml',data:xl.sh}];
+  var zip=buildZip(files);
+  var blob=new Blob([zip],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='UAQSecurity_'+date+'_sorted.xlsx';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1000);
+  showToast('Excel downloading','ok');
+}
+function copyToClipboardSorted(date){
+  var list=sortedExportList(date);
+  if(!list.length){showToast('No entries for this date','err');return;}
+  var text=buildText(date,list);
+  if(navigator.clipboard){navigator.clipboard.writeText(text).then(function(){showToast('Copied','ok');}).catch(function(){fallbackCopy(text);});}
+  else{fallbackCopy(text);}
+}
+function shareViaWhatsAppSorted(date){
+  var list=sortedExportList(date);
+  if(!list.length){showToast('No entries for this date','err');return;}
+  var text=buildText(date,list);
+  if(navigator.share){navigator.share({title:'Parking Log '+date,text:text}).then(function(){}).catch(function(){window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');});}
+  else{window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');}
+}
+function downloadHTMLReportSorted(date){
+  var html=buildSortedPrintHTML(date,_exSortBy,_exSortOrder);
+  if(!html){showToast('No entries for this date','err');return;}
+  var blob=new Blob([html],{type:'text/html'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='UAQSecurity_'+date+'_Report.html';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1000);
+  showToast('Report downloaded - open in Chrome then Print','ok');
+}
+
+/* ── IMPORT TAB EXPORT HELPER ── */
+function exportDataFileFromImportTab(){
+  var date=document.getElementById('importTabExportDate').value||todayStr();
+  var list=getByDate(date);
+  if(!list.length){showToast('No entries for this date','err');return;}
+  var payload={version:1,appName:'UAQSecurity Digital Parking Tracker',exportedBy:'Raja Farrakh Ayyaz',exportedAt:new Date().toISOString(),date:date,totalEntries:list.length,entries:list};
+  var json=JSON.stringify(payload,null,2);
+  var blob=new Blob([json],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='UAQPark_'+date+'.uaqpark';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1000);
+  showToast('Exported UAQPark_'+date+'.uaqpark','ok');
+}
+
+/* ── INJECT IMPORTED DATA INTO STORAGE ── */
+function injectImportedData(){
+  if(!_importedData){showToast('No file imported','err');return;}
+  var imp=_importedData.entries;
+  if(!imp||!imp.length){showToast('No entries in file','err');return;}
+  var fileDate=_importedData.date;
+  if(!confirm('Inject '+imp.length+' entries from "'+fileDate+'" into storage?\n\nDuplicates (same ID) will be skipped.')){return;}
+  var added=0,skipped=0,log=[];
+  var existingIds=entries.map(function(e){return e.id;});
+  imp.forEach(function(e){
+    if(existingIds.indexOf(e.id)>=0){
+      skipped++;
+      log.push({type:'skip',msg:'&#9888; Skipped (duplicate ID): '+(e.emirate||'')+' '+(e.code||'')+' '+e.number+' — '+fileDate});
+    } else {
+      entries.push(e);existingIds.push(e.id);added++;
+      log.push({type:'add',msg:'&#10003; Injected: '+(e.emirate||'')+' '+(e.code||'')+' '+e.number+' | Cat: '+(e.cat||'-')+' | Key: '+e.key});
+    }
+  });
+  save();updateSerial();renderLog();updateExportCount();updatePrintPreview();
+  /* Show log */
+  var logSec=document.getElementById('injectLogSection');
+  var logBody=document.getElementById('injectLogBody');
+  var summary='<div style="font-family:\'Rajdhani\',sans-serif;font-size:14px;font-weight:700;color:var(--accent);margin-bottom:8px">&#128229; Inject complete — Added: <span style="color:#4ade80">'+added+'</span>  Skipped: <span style="color:var(--yellow)">'+skipped+'</span></div>';
+  var rows=log.map(function(l){return'<div style="color:'+(l.type==='add'?'var(--green)':'var(--yellow)')+'">'+l.msg+'</div>';}).join('');
+  logBody.innerHTML=summary+rows;
+  logSec.style.display='block';
+  showToast('Injected: '+added+' added, '+skipped+' skipped','ok');
+}
+
+
 function exportDataFile(){
   var date=document.getElementById('printDate').value||todayStr();
   var list=getByDate(date);
@@ -1696,6 +1919,11 @@ function switchTab(name,btn){
   if(name==='view')renderLog();
   if(name==='export')updateExportCount();
   if(name==='print')updatePrintPreview();
+  if(name==='import'){
+    var td=todayStr();
+    var itd=document.getElementById('importTabExportDate');
+    if(itd&&!itd.value)itd.value=td;
+  }
 }
 
 /* TOAST */
